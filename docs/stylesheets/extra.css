@@ -145,10 +145,11 @@ body {
   height: 8px;
   margin-right: 0.55rem;
   border-radius: 50%;
-  background: #fbbf24;
-  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.22);
-  animation: pulse-dot 2.2s ease-in-out infinite;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3), 0 0 10px rgba(52, 211, 153, 0.25);
+  animation: pulse-dot 1.8s ease-in-out infinite;
   vertical-align: 1px;
+  will-change: transform, box-shadow;
 }
 
 /* ---------- Кнопки ---------- */
@@ -1284,10 +1285,12 @@ body {
 @keyframes pulse-dot {
   0%,
   100% {
-    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.22);
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3), 0 0 10px rgba(52, 211, 153, 0.25);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 7px rgba(251, 191, 36, 0.08);
+    box-shadow: 0 0 0 7px rgba(52, 211, 153, 0.08), 0 0 16px rgba(52, 211, 153, 0.5);
+    transform: scale(1.1);
   }
 }
 
