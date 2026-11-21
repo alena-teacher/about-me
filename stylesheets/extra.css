@@ -140,7 +140,12 @@ body {
 /* ---------- Шапка и навигация ---------- */
 
 .md-header {
+  background: linear-gradient(110deg, #14121f 0%, #1b1730 55%, #131b2e 100%);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 32px -24px rgba(0, 0, 0, 0.65);
+}
+
+.md-tabs {
+  background: #14121f;
 }
 
 .md-header::after {
@@ -161,12 +166,98 @@ body {
 
 .md-tabs__link {
   font-weight: 700;
-  opacity: 0.82;
+  opacity: 0.78;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
 .md-tabs__link--active,
 .md-tabs__link:hover {
   opacity: 1;
+}
+
+/* Обычные вкладки: мягкая плашка, подчёркивание и лёгкое увеличение */
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])) {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"]))::before {
+  content: "";
+  position: absolute;
+  inset: 7px 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])):hover {
+  z-index: 3;
+  transform: translateY(-1px) scale(1.04);
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])):hover::before {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"])) {
+  z-index: 2;
+  transform: translateY(-1px) scale(1.06);
+}
+
+.md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"])):hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"]))::before {
+  opacity: 1;
+  background: linear-gradient(
+    120deg,
+    rgba(251, 191, 36, 0.18),
+    rgba(167, 139, 250, 0.2) 52%,
+    rgba(56, 189, 248, 0.18)
+  );
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link {
+  position: relative;
+  z-index: 1;
+}
+
+.md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link {
+  color: #ffffff;
+  font-weight: 800;
+  opacity: 1;
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -0.55rem;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fbbf24, #f472b6, #a78bfa, #38bdf8);
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])):hover .md-tabs__link::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 /* ---------- Вкладка игры: яркая кнопка с периодическим движением ---------- */
@@ -176,6 +267,12 @@ body {
   align-items: center;
   padding-right: 0.3rem;
   padding-left: 0.3rem;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+.md-tabs__item:has(> .md-tabs__link[href$="mathtetris.html"]):hover {
+  transform: translateY(-1px) scale(1.04);
 }
 
 .md-tabs__link[href$="mathtetris.html"] {
