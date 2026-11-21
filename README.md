@@ -116,8 +116,8 @@ python tools/make_og.py
   <https://alena-teacher.github.io/robots.txt>.
 - Поэтому основной `robots.txt` лежит в отдельном репозитории
   `alena-teacher/alena-teacher.github.io` (локально: `../alena-teacher.github.io`).
-- `docs/robots.txt` в этом репозитории — копия для справки; для поисковиков
-  она не является основной.
+- В этом репозитории `robots.txt` нет: для project site он должен лежать
+  в корне домена, а не в папке `/services/`.
 
 ## Полезные команды
 
