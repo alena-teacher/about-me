@@ -82,8 +82,7 @@
 
     function renderCursorGlow(time) {
       var dt = glowLastTime ? Math.min((time - glowLastTime) / 1000, 0.05) : 1 / 60;
-      var isDark = document.body.getAttribute("data-md-color-scheme") === "slate";
-      var smoothing = isDark ? 5.5 : 3;
+      var smoothing = 5.5;
       var ease = 1 - Math.exp(-smoothing * dt);
       var dx = glowTargetX - glowX;
       var dy = glowTargetY - glowY;
