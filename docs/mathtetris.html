@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Математический тетрис — мини-игра для тренировки устного счёта: решайте примеры и не давайте мусору заполнить колонки.">
+  <meta name="theme-color" content="#f5f6ff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f0d1c" media="(prefers-color-scheme: dark)">
+  <title>Математический тетрис — Терехова Елена Викторовна</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235b4bff'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3E%C3%97%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ---------- Переменные: палитра сайта и размеры ---------- */
+    :root {
+      color-scheme: light;
+      --brand-1: #5b4bff;
+      --brand-2: #7c3aed;
+      --brand-3: #0ea5e9;
+      --brand-warm: #f59e0b;
+      --brand-green: #10b981;
+      --grad-brand: linear-gradient(120deg, var(--brand-1), var(--brand-2) 52%, var(--brand-3));
+      --grad-warm: linear-gradient(145deg, #fbbf24, #f97316);
+      --bg: #f5f6ff;
+      --panel: #ffffff;
+      --panel-2: #eef0ff;
+      --ink: #15132b;
+      --muted: #65617e;
+      --line: rgba(21, 19, 43, 0.13);
+      --line-strong: rgba(21, 19, 43, 0.22);
+      --board-bg: #fbfbff;
+      --ok: #10b981;
+      --ok-soft: rgba(16, 185, 129, 0.14);
+      --bad: #ef4444;
+      --bad-soft: rgba(239, 68, 68, 0.12);
+      --garbage-1: #9aa3b8;
+      --garbage-2: #6b7280;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-sm: 0 2px 8px rgba(21, 19, 43, 0.05);
+      --shadow-md: 0 16px 40px -24px rgba(21, 19, 43, 0.4);
+      --shadow-lg: 0 28px 60px -30px rgba(91, 75, 255, 0.6);
+      /* Размер клетки: поле 5 × 10 всегда остаётся пропорциональным */
+      --cell: clamp(32px, min(14vw, 6.4vh), 62px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg: #0f0d1c;
+        --panel: #1a1730;
+        --panel-2: rgba(124, 58, 237, 0.16);
+        --ink: #f4f2ff;
+        --muted: #a7a2c4;
+        --line: rgba(255, 255, 255, 0.11);
+        --line-strong: rgba(255, 255, 255, 0.2);
+        --board-bg: #141126;
+        --ok-soft: rgba(16, 185, 129, 0.2);
+        --bad-soft: rgba(239, 68, 68, 0.18);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+        --shadow-md: 0 16px 40px -24px rgba(0, 0, 0, 0.8);
+        --shadow-lg: 0 28px 60px -26px rgba(0, 0, 0, 0.9);
+      }
+    }
+
+    /* ---------- База ---------- */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100svh;
+      margin: 0;
+      padding: max(14px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background:
+        radial-gradient(1100px 520px at 100% -8%, rgba(91, 75, 255, 0.14), transparent 62%),
+        radial-gradient(900px 460px at -10% 18%, rgba(14, 165, 233, 0.1), transparent 58%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--ink);
+      font-family: "Manrope", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.4;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button,
+    a {
+      font-family: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    /* ---------- Каркас ---------- */
+    .game-shell {
+      width: 100%;
+      max-width: 440px;
+      margin: auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 40px;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 7px 9px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: color 0.18s ease, background 0.18s ease;
+    }
+
+    .back:hover {
+      color: var(--brand-1);
+      background: var(--panel);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .back:hover {
+        color: #c4b5fd;
+      }
+    }
+
+    .brand {
+      flex: 1;
+      text-align: center;
+      font-size: clamp(0.74rem, 3.2vw, 0.92rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand span {
+      background: var(--grad-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: border-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .icon-btn svg {
+      fill: currentColor;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      border-color: rgba(91, 75, 255, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* ---------- Счёт и показатели ---------- */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .hud__item {
+      padding: 8px 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .hud__label {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.56rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .hud strong {
+      display: block;
+      font-size: clamp(0.92rem, 4vw, 1.12rem);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+
+    .hud__item.is-hot {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .hud__item.is-hot strong {
+      color: #b45309;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .hud__item.is-hot strong {
+        color: #fbbf24;
+      }
+    }
+
+    /* ---------- Поле и ответы ---------- */
+    .playfield {
+      position: relative;
+      width: calc(var(--cell) * 5);
+      margin: 0 auto;
+    }
+
+    .board {
+      position: relative;
+      width: 100%;
+      height: calc(var(--cell) * 10);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(91, 75, 255, 0.07), transparent 24%),
+        var(--board-bg);
+      box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .cells {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+    }
+
+    .cell {
+      position: relative;
+      box-shadow: inset -1px -1px 0 var(--line);
+    }
+
+    .cell.is-garbage {
+      background: linear-gradient(135deg, var(--garbage-1), var(--garbage-2));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+      animation: garbage-in 0.24s ease-out;
+    }
+
+    .cell.is-garbage::after {
+      content: "";
+      position: absolute;
+      inset: 24%;
+      border-radius: 4px;
+      background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 6px);
+    }
+
+    /* Падающий блок с выражением */
+    .block {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 3;
+      width: 20%;
+      height: 10%;
+      pointer-events: none;
+      transition: left 0.09s cubic-bezier(0.2, 0.8, 0.2, 1);
+      will-change: top, left;
+    }
+
+    .block span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
+      padding: 0 2px;
+      border-radius: 10px;
+      background: var(--grad-warm);
+      color: #3b2200;
+      font-size: clamp(9px, calc(var(--cell) * 0.205), 14px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      box-shadow: 0 7px 16px -7px rgba(249, 115, 22, 0.85), inset 0 -2px 0 rgba(0, 0, 0, 0.13);
+      transition: filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .block.is-fast span {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 10px -6px rgba(249, 115, 22, 0.9), inset 0 -2px 0 rgba(0, 0, 0, 0.13);
+    }
+
+    .block.is-tight span {
+      font-size: clamp(8px, calc(var(--cell) * 0.17), 12px);
+      letter-spacing: -0.05em;
+    }
+
+    .board.is-fast {
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    .board.is-ok {
+      animation: board-ok 0.55s ease;
+    }
+
+    .board.is-bad {
+      animation: board-bad 0.4s ease;
+    }
+
+    /* Всплывающие «+10» */
+    .fx {
+      position: absolute;
+      top: 66%;
+      z-index: 5;
+      width: 20%;
+      color: var(--ok);
+      font-size: clamp(0.78rem, calc(var(--cell) * 0.3), 1rem);
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+      pointer-events: none;
+      animation: fx-rise 0.9s ease-out forwards;
+    }
+
+    .fx--bad {
+      color: var(--bad);
+      text-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+    }
+
+    /* Ответы под колонками */
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      margin-top: 7px;
+    }
+
+    .answer {
+      padding: 2px;
+    }
+
+    .answer span {
+      display: grid;
+      place-items: center;
+      height: calc(var(--cell) * 0.78);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      font-size: clamp(0.78rem, calc(var(--cell) * 0.34), 1.3rem);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .answer.is-target span {
+      border-color: rgba(124, 58, 237, 0.65);
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.16), var(--shadow-sm);
+    }
+
+    .answer.is-hit span {
+      border-color: var(--ok);
+      background: var(--ok);
+      color: #ffffff;
+      animation: answer-pop 0.55s ease;
+    }
+
+    .answer.is-miss span {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+      color: var(--bad);
+      animation: answer-shake 0.4s ease;
+    }
+
+    .answer.is-refresh span {
+      animation: answer-fade 0.38s ease;
+    }
+
+    /* ---------- Оверлеи ---------- */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 10px;
+      overflow: auto;
+      border-radius: 20px;
+      background: rgba(245, 246, 255, 0.76);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .overlay {
+        background: rgba(15, 13, 28, 0.76);
+      }
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 330px;
+      margin: auto 0;
+      padding: clamp(16px, 4vw, 23px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .panel__eyebrow {
+      display: inline-block;
+      color: var(--brand-1);
+      font-size: 0.56rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .panel__eyebrow {
+        color: #a5b4fc;
+      }
+    }
+
+    .panel h1,
+    .panel h2 {
+      margin: 0.35rem 0 0.45rem;
+      font-size: clamp(1.22rem, 5.4vw, 1.62rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+    }
+
+    .panel h2 {
+      font-size: clamp(1.15rem, 5vw, 1.45rem);
+    }
+
+    .panel__lead {
+      margin: 0 0 0.85rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .rules {
+      display: grid;
+      gap: 0.36rem;
+      margin: 0 0 0.95rem;
+      padding: 0;
+      list-style: none;
+      text-align: left;
+      color: var(--muted);
+      font-size: 0.68rem;
+      line-height: 1.45;
+    }
+
+    .rules li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.45rem;
+    }
+
+    .rules b {
+      flex: 0 0 auto;
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--ink);
+      font-size: 0.61rem;
+      white-space: nowrap;
+    }
+
+    .panel__actions {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.72rem 1.1rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      line-height: 1.15;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease,
+        background 0.16s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn--primary {
+      background: var(--grad-brand);
+      box-shadow: 0 14px 28px -13px rgba(91, 75, 255, 0.8);
+      color: #ffffff;
+    }
+
+    .btn--primary:hover {
+      box-shadow: 0 18px 34px -13px rgba(91, 75, 255, 0.9);
+    }
+
+    .btn--ghost {
+      border-color: var(--line);
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .btn--ghost:hover {
+      border-color: var(--brand-1);
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin: 0.85rem 0 0.95rem;
+    }
+
+    .result-stat {
+      padding: 0.55rem 0.4rem;
+      border-radius: var(--radius-sm);
+      background: var(--panel-2);
+    }
+
+    .result-stat span {
+      display: block;
+      margin-bottom: 1px;
+      color: var(--muted);
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .result-stat strong {
+      font-size: clamp(1.15rem, 5vw, 1.42rem);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .record-note {
+      margin: -0.35rem 0 0.8rem;
+      color: #b45309;
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .record-note {
+        color: #fbbf24;
+      }
+    }
+
+    /* ---------- Экранные кнопки ---------- */
+    .pad {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      width: calc(var(--cell) * 5);
+      margin: 0 auto;
+    }
+
+    .pad button {
+      display: grid;
+      place-items: center;
+      min-height: 52px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      font-size: 1.35rem;
+      font-weight: 900;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform 0.12s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .pad button:hover:not(:disabled) {
+      border-color: rgba(91, 75, 255, 0.45);
+    }
+
+    .pad button:active:not(:disabled) {
+      transform: scale(0.96);
+      background: var(--panel-2);
+    }
+
+    .pad button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.64rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ---------- Тост ---------- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      z-index: 50;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: var(--ink);
+      box-shadow: 0 14px 30px -12px rgba(21, 19, 43, 0.55);
+      color: var(--bg);
+      font-size: 0.72rem;
+      font-weight: 800;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 14px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ---------- Анимации ---------- */
+    @keyframes garbage-in {
+      from {
+        opacity: 0;
+        transform: scale(0.82);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes board-ok {
+      0%,
+      100% {
+        border-color: var(--line);
+        box-shadow: var(--shadow-md);
+      }
+      40% {
+        border-color: var(--ok);
+        box-shadow: 0 0 0 4px var(--ok-soft), var(--shadow-md);
+      }
+    }
+
+    @keyframes board-bad {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-4px);
+      }
+      55% {
+        transform: translateX(4px);
+      }
+      80% {
+        transform: translateX(-2px);
+      }
+    }
+
+    @keyframes answer-pop {
+      0% {
+        transform: scale(1);
+      }
+      45% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes answer-shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+      30% {
+        transform: translateX(-3px);
+      }
+      65% {
+        transform: translateX(3px);
+      }
+    }
+
+    @keyframes answer-fade {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      45% {
+        opacity: 0.4;
+        transform: translateY(3px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fx-rise {
+      0% {
+        opacity: 0;
+        transform: translateY(4px) scale(0.9);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-30px) scale(1.04);
+      }
+    }
+
+    /* ---------- Адаптивность и доступность ---------- */
+    /* На низких экранах панель не помещается над полем — раскрываем оверлей на весь экран. */
+    @media screen and (max-height: 700px) {
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        border-radius: 0;
+        padding: max(12px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom));
+      }
+    }
+
+    @media screen and (max-width: 360px) {
+      .back span {
+        display: none;
+      }
+
+      .hud__label {
+        font-size: 0.5rem;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .rules {
+        font-size: 0.64rem;
+      }
+    }
+
+    @media screen and (max-height: 680px) and (orientation: landscape) {
+      .game-shell {
+        max-width: 760px;
+      }
+
+      .hud {
+        grid-template-columns: repeat(4, minmax(60px, 1fr));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <header class="topbar">
+      <a class="back" href="./" aria-label="Назад на сайт">← <span>На сайт</span></a>
+      <div class="brand">Математический <span>тетрис</span></div>
+      <button class="icon-btn" id="pauseBtn" type="button" aria-label="Пауза" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+          <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+        </svg>
+      </button>
+    </header>
+
+    <section class="hud" aria-label="Показатели игры">
+      <div class="hud__item"><span class="hud__label">Счёт</span><strong id="score">0</strong></div>
+      <div class="hud__item"><span class="hud__label">Рекорд</span><strong id="best">0</strong></div>
+      <div class="hud__item"><span class="hud__label">Комбо</span><strong id="combo">—</strong></div>
+      <div class="hud__item"><span class="hud__label">Уровень</span><strong id="level">1</strong></div>
+    </section>
+
+    <div class="playfield">
+      <div class="board" id="board" aria-label="Игровое поле: 5 колонок и 10 рядов">
+        <div class="cells" id="cells"></div>
+        <div class="block" id="block" hidden><span id="blockText"></span></div>
+      </div>
+      <div class="answers" id="answers" aria-label="Ответы колонок"></div>
+
+      <div class="overlay" id="startScreen">
+        <div class="panel">
+          <span class="panel__eyebrow">Разминка для ума</span>
+          <h1>Математический тетрис</h1>
+          <p class="panel__lead">Решите пример и направьте блок в колонку с правильным ответом. Ошибка превращается в мусор.</p>
+          <ul class="rules">
+            <li><b>← →</b> или свайпы — двигать блок</li>
+            <li><b>↓</b> — ускорить падение</li>
+            <li><b>P / Esc</b> — пауза</li>
+            <li><b>Правило</b> не дайте мусору дойти до верхнего ряда</li>
+          </ul>
+          <div class="panel__actions">
+            <button class="btn btn--primary" id="startBtn" type="button">Играть</button>
+            <a class="btn btn--ghost" href="./">Назад на сайт</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="pauseScreen" hidden>
+        <div class="panel">
+          <span class="panel__eyebrow">Пауза</span>
+          <h2>Передохнём?</h2>
+          <p class="panel__lead">Продолжите с того же места или начните заново.</p>
+          <div class="panel__actions">
+            <button class="btn btn--primary" id="resumeBtn" type="button">Продолжить</button>
+            <button class="btn btn--ghost" id="pauseRestartBtn" type="button">Заново</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="overScreen" hidden>
+        <div class="panel">
+          <span class="panel__eyebrow">Игра окончена</span>
+          <h2>Мусор добрался до верха</h2>
+          <div class="result-stats">
+            <div class="result-stat"><span>Счёт</span><strong id="overScore">0</strong></div>
+            <div class="result-stat"><span>Рекорд</span><strong id="overBest">0</strong></div>
+          </div>
+          <p class="record-note" id="overNote" hidden>Новый рекорд!</p>
+          <div class="panel__actions">
+            <button class="btn btn--primary" id="restartBtn" type="button">Играть снова</button>
+            <a class="btn btn--ghost" href="./">На главную</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pad" aria-label="Экранное управление">
+      <button type="button" data-move="left" aria-label="Влево">←</button>
+      <button type="button" data-move="drop" aria-label="Ускорить падение">↓</button>
+      <button type="button" data-move="right" aria-label="Вправо">→</button>
+    </div>
+    <p class="hint">На телефоне можно свайпать прямо по полю.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ---------- Константы ----------
+      const COLS = 5;
+      const ROWS = 10;
+      const LEVEL_STEP = 8;       // правильных ответов до нового уровня
+      const MAX_LEVEL = 12;
+      const BEST_KEY = "mathtetris-best-v1";
+
+      const $ = (id) => document.getElementById(id);
+
+      const els = {
+        board: $("board"),
+        cells: $("cells"),
+        block: $("block"),
+        blockText: $("blockText"),
+        answers: $("answers"),
+        score: $("score"),
+        best: $("best"),
+        combo: $("combo"),
+        level: $("level"),
+        pauseBtn: $("pauseBtn"),
+        startScreen: $("startScreen"),
+        pauseScreen: $("pauseScreen"),
+        overScreen: $("overScreen"),
+        overScore: $("overScore"),
+        overBest: $("overBest"),
+        overNote: $("overNote"),
+        toast: $("toast")
+      };
+
+      const cellEls = [];
+      const answerEls = [];
+
+      // ---------- Построение поля и плашек ответов ----------
+      for (let row = 0; row < ROWS; row += 1) {
+        for (let col = 0; col < COLS; col += 1) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.row = String(row);
+          cell.dataset.col = String(col);
+          els.cells.appendChild(cell);
+          cellEls.push(cell);
+        }
+      }
+
+      for (let col = 0; col < COLS; col += 1) {
+        const answer = document.createElement("div");
+        answer.className = "answer";
+        answer.setAttribute("aria-label", "Ответ " + (col + 1) + "-й колонки");
+        const value = document.createElement("span");
+        value.textContent = "—";
+        answer.appendChild(value);
+        els.answers.appendChild(answer);
+        answerEls.push(answer);
+      }
+
+      // ---------- Состояние игры ----------
+      const state = {
+        phase: "start", // start | playing | paused | over
+        garbage: makeEmptyBoard(),
+        answers: [null, null, null, null, null],
+        block: null,
+        score: 0,
+        best: loadBest(),
+        combo: 0,
+        level: 1,
+        correct: 0,
+        fast: false,
+        refreshAt: 0,
+        resolveAt: 0,
+        overAt: 0,
+        lastTime: 0,
+        fastTimer: 0,
+        toastTimer: 0
+      };
+
+      function makeEmptyBoard() {
+        return Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+      }
+
+      // ---------- Утилиты ----------
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function shuffle(list) {
+        for (let i = list.length - 1; i > 0; i -= 1) {
+          const j = randInt(0, i);
+          const temp = list[i];
+          list[i] = list[j];
+          list[j] = temp;
+        }
+        return list;
+      }
+
+      function loadBest() {
+        try {
+          const saved = Number.parseInt(window.localStorage.getItem(BEST_KEY), 10);
+          return Number.isFinite(saved) && saved > 0 ? saved : 0;
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      function saveBest() {
+        try {
+          window.localStorage.setItem(BEST_KEY, String(state.best));
+        } catch (error) {
+          // Приватный режим может запрещать localStorage — игра продолжает работать.
+        }
+      }
+
+      // ---------- Генерация примеров ----------
+      // Уровень 1: сложение и вычитание в пределах 20.
+      // Уровни 2–3: таблица умножения до 10 и деление без остатка.
+      // Уровень 4+: двузначные числа, умножение/деление на 2–9, действия в пределах 100.
+      function generateExpression(level) {
+        const lvl = Math.max(1, Math.floor(level) || 1);
+
+        if (lvl === 1) {
+          if (Math.random() < 0.5) {
+            const a = randInt(1, 19);
+            const b = randInt(1, 20 - a);
+            return { text: a + " + " + b, value: a + b };
+          }
+          const a = randInt(1, 20);
+          const b = randInt(1, a);
+          return { text: a + " − " + b, value: a - b };
+        }
+
+        if (lvl <= 3) {
+          if (Math.random() < 0.55) {
+            const a = randInt(2, 10);
+            const b = randInt(2, 10);
+            return { text: a + " × " + b, value: a * b };
+          }
+          const divisor = randInt(2, 10);
+          const quotient = randInt(2, 10);
+          return { text: divisor * quotient + " ÷ " + divisor, value: quotient };
+        }
+
+        const kind = randInt(0, 3);
+
+        if (kind === 0) {
+          const a = randInt(10, 99);
+          const b = randInt(2, 9);
+          return { text: a + " × " + b, value: a * b };
+        }
+
+        if (kind === 1) {
+          const divisor = randInt(2, 9);
+          const quotient = randInt(5, 12);
+          return { text: divisor * quotient + " ÷ " + divisor, value: quotient };
+        }
+
+        if (kind === 2) {
+          const a = randInt(10, 89);
+          const b = randInt(1, 100 - a);
+          return { text: a + " + " + b, value: a + b };
+        }
+
+        const a = randInt(20, 100);
+        const b = randInt(10, a);
+        return { text: a + " − " + b, value: a - b };
+      }
+
+      // Пять различных ответов: ровно один равен correctValue, остальные — дистракторы.
+      function generateAnswers(correctValue, level) {
+        const correct = Math.max(0, Math.round(Number(correctValue) || 0));
+        const lvl = Math.max(1, Math.floor(level) || 1);
+        const span = lvl <= 1 ? 20 : lvl <= 3 ? 90 : Math.max(120, correct + 60);
+        const offsets = [1, 2, 3, 4, 5, 6, 10, 20, lvl * 2, lvl * 5];
+        const used = new Set([correct]);
+        const values = [correct];
+
+        let guard = 0;
+        while (values.length < COLS && guard < 500) {
+          guard += 1;
+          let candidate;
+
+          if (Math.random() < 0.75) {
+            const offset = offsets[randInt(0, offsets.length - 1)];
+            candidate = correct + (Math.random() < 0.5 ? -offset : offset);
+          } else {
+            candidate = randInt(0, span);
+          }
+
+          if (candidate < 0) candidate = correct + randInt(1, Math.max(5, span));
+          candidate = Math.round(candidate);
+
+          if (candidate === correct || used.has(candidate)) continue;
+          used.add(candidate);
+          values.push(candidate);
+        }
+
+        // Страховка от редкого зацикливания: добираем недостающие числа по порядку.
+        let extra = correct + 1;
+        while (values.length < COLS) {
+          if (!used.has(extra)) {
+            used.add(extra);
+            values.push(extra);
+          }
+          extra += 1;
+        }
+
+        return shuffle(values);
+      }
+
+      // ---------- Скорость, мусор, коллизии ----------
+      function fallSpeed() {
+        const base = Math.min(3.4, 1.15 + (state.level - 1) * 0.16);
+        return state.fast ? base * 4.2 : base;
+      }
+
+      function stackHeight(col) {
+        let height = 0;
+        for (let row = ROWS - 1; row >= 0; row -= 1) {
+          if (!state.garbage[row][col]) break;
+          height += 1;
+        }
+        return height;
+      }
+
+      // Верхняя свободная строка колонки: сюда приземлится блок.
+      function landingRow(col) {
+        return ROWS - 1 - stackHeight(col);
+      }
+
+      function refreshInterval() {
+        const baseSpeed = Math.min(3.4, 1.15 + (state.level - 1) * 0.16);
+        // Обновляем ответы примерно на середине падения блока:
+        // так они действительно меняются, но не в последний момент.
+        return Math.max(1200, Math.round((ROWS / baseSpeed) * 500));
+      }
+
+      // ---------- Отрисовка ----------
+      function updateCells() {
+        for (let row = 0; row < ROWS; row += 1) {
+          for (let col = 0; col < COLS; col += 1) {
+            cellEls[row * COLS + col].classList.toggle("is-garbage", state.garbage[row][col]);
+          }
+        }
+      }
+
+      function renderBlock() {
+        if (!state.block) {
+          els.block.hidden = true;
+          return;
+        }
+        els.block.hidden = false;
+        els.block.style.left = ((state.block.col * 100) / COLS) + "%";
+        els.block.style.top = ((state.block.y * 100) / ROWS) + "%";
+        els.blockText.textContent = state.block.text;
+        els.block.classList.toggle("is-fast", state.fast);
+        els.block.classList.toggle("is-tight", state.block.text.length > 7);
+      }
+
+      function renderAnswers(animate) {
+        answerEls.forEach((item, index) => {
+          const value = state.answers[index];
+          item.firstElementChild.textContent = value === null ? "—" : String(value);
+          item.classList.remove("is-target");
+          if (animate) {
+            item.classList.remove("is-refresh");
+            void item.offsetWidth; // перезапуск CSS-анимации
+            item.classList.add("is-refresh");
+          } else {
+            item.classList.remove("is-refresh");
+          }
+        });
+        highlightTarget();
+      }
+
+      // Подсвечиваем ответ той колонки, над которой сейчас находится блок.
+      function highlightTarget() {
+        const col = state.block ? state.block.col : -1;
+        answerEls.forEach((item, index) => {
+          item.classList.toggle("is-target", index === col);
+        });
+      }
+
+      function updateHud() {
+        els.score.textContent = String(state.score);
+        els.best.textContent = String(Math.max(state.best, state.score));
+        els.combo.textContent = state.combo > 0 ? "×" + state.combo : "—";
+        els.level.textContent = String(state.level);
+        els.combo.parentElement.classList.toggle("is-hot", state.combo >= 3);
+      }
+
+      function flashBoard(kind) {
+        const cls = kind === "ok" ? "is-ok" : "is-bad";
+        els.board.classList.remove("is-ok", "is-bad");
+        void els.board.offsetWidth;
+        els.board.classList.add(cls);
+        window.setTimeout(() => els.board.classList.remove(cls), 600);
+      }
+
+      function markAnswer(col, isCorrect) {
+        const item = answerEls[col];
+        item.classList.remove("is-hit", "is-miss");
+        void item.offsetWidth;
+        item.classList.add(isCorrect ? "is-hit" : "is-miss");
+        window.setTimeout(() => item.classList.remove("is-hit", "is-miss"), 650);
+      }
+
+      function spawnFx(col, text, kind) {
+        const fx = document.createElement("span");
+        fx.className = "fx fx--" + kind;
+        fx.textContent = text;
+        fx.style.left = ((col * 100) / COLS) + "%";
+        els.board.appendChild(fx);
+        window.setTimeout(() => fx.remove(), 900);
+      }
+
+      function showToast(text) {
+        els.toast.textContent = text;
+        els.toast.classList.add("is-visible");
+        window.clearTimeout(state.toastTimer);
+        state.toastTimer = window.setTimeout(() => {
+          els.toast.classList.remove("is-visible");
+        }, 1600);
+      }
+
+      function clearAnswerMarks() {
+        answerEls.forEach((item) => item.classList.remove("is-hit", "is-miss"));
+      }
+
+      // ---------- Экраны ----------
+      function showOverlay(target) {
+        [els.startScreen, els.pauseScreen, els.overScreen].forEach((screen) => {
+          screen.hidden = screen !== target;
+        });
+      }
+
+      function hideOverlays() {
+        [els.startScreen, els.pauseScreen, els.overScreen].forEach((screen) => {
+          screen.hidden = true;
+        });
+      }
+
+      const PAUSE_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>';
+      const PLAY_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5l11 7-11 7z"></path></svg>';
+
+      function setPauseButton(isPaused) {
+        els.pauseBtn.innerHTML = isPaused ? PLAY_ICON : PAUSE_ICON;
+        els.pauseBtn.setAttribute("aria-label", isPaused ? "Продолжить" : "Пауза");
+      }
+
+      // ---------- Управление игрой ----------
+      function startGame() {
+        window.clearTimeout(state.fastTimer);
+        window.clearTimeout(state.toastTimer);
+        els.toast.classList.remove("is-visible");
+        els.toast.textContent = "";
+        document.querySelectorAll(".fx").forEach((node) => node.remove());
+
+        state.phase = "playing";
+        state.garbage = makeEmptyBoard();
+        state.answers = [null, null, null, null, null];
+        state.block = null;
+        state.score = 0;
+        state.combo = 0;
+        state.level = 1;
+        state.correct = 0;
+        state.fast = false;
+        state.refreshAt = 0;
+        state.resolveAt = 0;
+        state.overAt = 0;
+        state.lastTime = performance.now();
+
+        els.board.classList.remove("is-ok", "is-bad", "is-fast");
+        els.pauseBtn.disabled = false;
+        setPauseButton(false);
+        clearAnswerMarks();
+        updateCells();
+        updateHud();
+        renderAnswers(false);
+        renderBlock();
+        hideOverlays();
+        nextRound(state.lastTime);
+      }
+
+      // Новый раунд: сначала выбираем колонку ответа, затем пример и дистракторы.
+      function nextRound(now) {
+        if (state.phase !== "playing") return;
+
+        const targetCol = randInt(0, COLS - 1);
+        const expression = generateExpression(state.level);
+        const values = generateAnswers(expression.value, state.level);
+
+        // Переносим правильный ответ в заранее выбранную колонку.
+        const correctPos = values.indexOf(expression.value);
+        const temp = values[correctPos];
+        values[correctPos] = values[targetCol];
+        values[targetCol] = temp;
+
+        state.answers = values;
+        state.block = {
+          col: randInt(0, COLS - 1),
+          y: 0,
+          value: expression.value,
+          text: expression.text
+        };
+        state.refreshAt = now + refreshInterval();
+        state.resolveAt = 0;
+
+        clearAnswerMarks();
+        renderAnswers(true);
+        renderBlock();
+        highlightTarget();
+      }
+
+      // Обновляем ответы, всегда сохраняя значение летящего блока среди вариантов.
+      function refreshAnswers() {
+        if (!state.block || state.phase !== "playing") return;
+
+        const targetCol = randInt(0, COLS - 1);
+        const values = generateAnswers(state.block.value, state.level);
+        const correctPos = values.indexOf(state.block.value);
+        const temp = values[correctPos];
+        values[correctPos] = values[targetCol];
+        values[targetCol] = temp;
+
+        state.answers = values;
+        state.refreshAt = performance.now() + refreshInterval();
+        renderAnswers(true);
+        showToast("Ответы обновились");
+      }
+
+      function setFast(value) {
+        const next = state.phase === "playing" ? value : false;
+        if (state.fast === next) return;
+        state.fast = next;
+        els.board.classList.toggle("is-fast", next);
+        renderBlock();
+      }
+
+      function pulseFast(ms) {
+        if (state.phase !== "playing") return;
+        setFast(true);
+        window.clearTimeout(state.fastTimer);
+        state.fastTimer = window.setTimeout(() => setFast(false), ms);
+      }
+
+      function pauseGame() {
+        if (state.phase !== "playing") return;
+        state.phase = "paused";
+        state.fast = false;
+        window.clearTimeout(state.fastTimer);
+        els.board.classList.remove("is-fast");
+        renderBlock();
+        showOverlay(els.pauseScreen);
+        setPauseButton(true);
+      }
+
+      function resumeGame() {
+        if (state.phase !== "paused") return;
+        state.phase = "playing";
+        state.lastTime = performance.now();
+        els.pauseScreen.hidden = true;
+        setPauseButton(false);
+      }
+
+      function togglePause() {
+        if (state.phase === "playing") pauseGame();
+        else if (state.phase === "paused") resumeGame();
+      }
+
+      function endGame() {
+        if (state.phase === "over") return;
+
+        const isRecord = state.score > state.best;
+        state.phase = "over";
+        state.block = null;
+        state.resolveAt = 0;
+        state.overAt = 0;
+        state.fast = false;
+        els.block.hidden = true;
+        els.board.classList.remove("is-fast");
+        highlightTarget();
+
+        if (isRecord) {
+          state.best = state.score;
+          saveBest();
+        }
+        updateHud();
+
+        els.overScore.textContent = String(state.score);
+        els.overBest.textContent = String(Math.max(state.best, state.score));
+        els.overNote.hidden = !isRecord;
+        els.pauseBtn.disabled = true;
+        setPauseButton(false);
+        showOverlay(els.overScreen);
+      }
+
+      // ---------- Правильное и неправильное попадание ----------
+      function handleCorrect(col) {
+        const previousCombo = state.combo;
+        state.combo = previousCombo + 1;
+        state.correct += 1;
+
+        const points = 10 + (state.level - 1) * 2 + Math.min(previousCombo, 10) * 5;
+        state.score += points;
+
+        const nextLevel = Math.min(MAX_LEVEL, 1 + Math.floor(state.correct / LEVEL_STEP));
+        const leveledUp = nextLevel > state.level;
+        state.level = nextLevel;
+
+        if (state.score > state.best) {
+          state.best = state.score;
+          saveBest();
+        }
+
+        markAnswer(col, true);
+        flashBoard("ok");
+        spawnFx(col, "+" + points, "ok");
+        updateHud();
+        if (leveledUp) showToast("Уровень " + state.level);
+
+        state.resolveAt = performance.now() + 420;
+      }
+
+      function landBlock() {
+        const block = state.block;
+        if (!block) return;
+
+        const col = block.col;
+        const isCorrect = state.answers[col] === block.value;
+
+        state.block = null;
+        els.block.hidden = true;
+        highlightTarget();
+
+        if (isCorrect) {
+          handleCorrect(col);
+          return;
+        }
+
+        // Ошибка: блок остаётся серым мусором и поднимает стопку вверх.
+        state.combo = 0;
+        const row = landingRow(col);
+        if (row >= 0) state.garbage[row][col] = true;
+        updateCells();
+        markAnswer(col, false);
+        flashBoard("bad");
+        updateHud();
+
+        if (row <= 0 || stackHeight(col) >= ROWS) {
+          // Небольшая задержка, чтобы игрок увидел последний мусор.
+          state.overAt = performance.now() + 320;
+        } else {
+          state.resolveAt = performance.now() + 460;
+        }
+      }
+
+      function moveBlock(direction) {
+        if (state.phase !== "playing" || !state.block) return;
+
+        const nextCol = state.block.col + direction;
+        if (nextCol < 0 || nextCol >= COLS) return;
+
+        // Не позволяем «заехать» внутрь мусора: блок может встать только
+        // на свободную верхушку стопки. Если он чуть ниже неё, аккуратно
+        // подтягиваем его вверх — так в высокую колонку всё ещё можно попасть.
+        const stopRow = landingRow(nextCol);
+        if (Math.floor(state.block.y + 0.001) > stopRow) return;
+        if (state.block.y > stopRow) state.block.y = stopRow;
+
+        state.block.col = nextCol;
+        renderBlock();
+        highlightTarget();
+      }
+
+      // ---------- Игровой цикл ----------
+      function tick(now) {
+        window.requestAnimationFrame(tick);
+
+        const dt = Math.min(Math.max((now - state.lastTime) / 1000, 0), 0.05);
+        state.lastTime = now;
+
+        if (state.phase !== "playing") return;
+
+        if (!state.block) {
+          if (state.overAt && now >= state.overAt) {
+            state.overAt = 0;
+            endGame();
+            return;
+          }
+          if (state.resolveAt && now >= state.resolveAt) {
+            state.resolveAt = 0;
+            nextRound(now);
+          }
+          return;
+        }
+
+        // Ответы меняются только пока блок в верхней половине поля,
+        // чтобы не подменять правильный ответ в последний момент.
+        if (now >= state.refreshAt) {
+          if (state.block.y < ROWS * 0.55) {
+            refreshAnswers();
+          } else {
+            state.refreshAt = now + 1200;
+          }
+        }
+
+        state.block.y += fallSpeed() * dt;
+        const stopRow = landingRow(state.block.col);
+
+        if (state.block.y >= stopRow) {
+          state.block.y = stopRow;
+          renderBlock();
+          landBlock();
+          return;
+        }
+
+        renderBlock();
+      }
+
+      // ---------- Клавиатура ----------
+      document.addEventListener("keydown", (event) => {
+        const key = event.key;
+
+        if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowDown") {
+          if (state.phase === "playing") event.preventDefault();
+        }
+
+        if (key === "p" || key === "P" || key === "Escape") {
+          if (event.repeat) return;
+          if (state.phase === "playing" || state.phase === "paused") {
+            event.preventDefault();
+            togglePause();
+          }
+          return;
+        }
+
+        if (key === "Enter") {
+          if (event.repeat) return;
+          if (state.phase === "start" || state.phase === "over") startGame();
+          return;
+        }
+
+        if (key === "ArrowLeft") moveBlock(-1);
+        else if (key === "ArrowRight") moveBlock(1);
+        else if (key === "ArrowDown") setFast(true);
+      });
+
+      document.addEventListener("keyup", (event) => {
+        if (event.key === "ArrowDown") setFast(false);
+      });
+
+      // ---------- Экранные кнопки ----------
+      document.querySelectorAll("[data-move]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.move;
+          if (action === "left") moveBlock(-1);
+          else if (action === "right") moveBlock(1);
+          else pulseFast(700);
+        });
+      });
+
+      els.pauseBtn.addEventListener("click", togglePause);
+      $("startBtn").addEventListener("click", startGame);
+      $("resumeBtn").addEventListener("click", resumeGame);
+      $("pauseRestartBtn").addEventListener("click", startGame);
+      $("restartBtn").addEventListener("click", startGame);
+
+      // ---------- Свайпы по полю ----------
+      let touchStart = null;
+
+      els.board.addEventListener("touchstart", (event) => {
+        if (state.phase !== "playing") return;
+        const touch = event.changedTouches[0];
+        touchStart = { x: touch.clientX, y: touch.clientY };
+        if (event.cancelable) event.preventDefault();
+      }, { passive: false });
+
+      els.board.addEventListener("touchmove", (event) => {
+        if (!touchStart || state.phase !== "playing") return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - touchStart.x;
+        const dy = touch.clientY - touchStart.y;
+
+        if (Math.abs(dx) > 26 && Math.abs(dx) > Math.abs(dy)) {
+          moveBlock(dx > 0 ? 1 : -1);
+          touchStart.x = touch.clientX;
+          touchStart.y = touch.clientY;
+        } else if (dy > 34 && dy > Math.abs(dx) * 1.2) {
+          pulseFast(500);
+          touchStart.y = touch.clientY;
+        }
+
+        if (event.cancelable) event.preventDefault();
+      }, { passive: false });
+
+      els.board.addEventListener("touchend", () => {
+        touchStart = null;
+      }, { passive: true });
+
+      els.board.addEventListener("touchcancel", () => {
+        touchStart = null;
+      }, { passive: true });
+
+      // Автопауза, если вкладка скрыта.
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && state.phase === "playing") pauseGame();
+      });
+
+      // ---------- Стартовая отрисовка ----------
+      updateCells();
+      updateHud();
+      renderAnswers(false);
+      setPauseButton(false);
+      els.pauseBtn.disabled = true;
+      showOverlay(els.startScreen);
+      state.lastTime = performance.now();
+      window.requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
