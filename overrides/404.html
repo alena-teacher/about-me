@@ -1,0 +1,45 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="hero__badge">404</div>
+  <h1>Кажется, мы свернули не туда</h1>
+  <p>Такой страницы нет — возможно, ссылка устарела или в адресе опечатка. Но у нас есть куда вернуться.</p>
+  <div class="page-hero__actions">
+    <a class="btn btn--primary" href="{{ '' | url }}">На главную</a>
+    <a class="btn btn--ghost" href="{{ 'contacts/' | url }}">Связаться</a>
+  </div>
+</div>
+
+<div class="card-grid card-grid--2">
+  <div class="card">
+    <div class="card__icon">∑</div>
+    <h3>Подготовка к ОГЭ</h3>
+    <p>Разбор формата, отработка заданий и стратегия экзамена.</p>
+    <a class="card__link" href="{{ 'programs/oge/' | url }}">Перейти</a>
+  </div>
+  <div class="card">
+    <div class="card__icon">∫</div>
+    <h3>Подготовка к ЕГЭ</h3>
+    <p>База и профиль: система, практика и развёрнутые решения.</p>
+    <a class="card__link" href="{{ 'programs/ege/' | url }}">Перейти</a>
+  </div>
+  <div class="card">
+    <div class="card__icon card__icon--sky">π</div>
+    <h3>Школьная программа</h3>
+    <p>Восполняем пробелы, разбираем домашние задания и контрольные.</p>
+    <a class="card__link" href="{{ 'programs/school/' | url }}">Перейти</a>
+  </div>
+  <div class="card">
+    <div class="card__icon card__icon--green">√</div>
+    <h3>Математика с нуля</h3>
+    <p>Возвращаемся к базе и собираем фундамент без спешки.</p>
+    <a class="card__link" href="{{ 'programs/from-scratch/' | url }}">Перейти</a>
+  </div>
+</div>
+
+<div class="note" style="margin-top: 1.5rem;">
+  <strong>Подсказка:</strong> воспользуйтесь поиском в шапке сайта или напишите мне в
+  <a href="https://t.me/Alena_t85" target="_blank" rel="noopener">Telegram</a> — помогу найти нужное.
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+# Сайт репетитора по математике — Алёна Терехова
+# Документация: https://squidfunk.github.io/mkdocs-material/
+
+site_name: Алёна Терехова — репетитор по математике
+site_description: >-
+  Индивидуальные онлайн-занятия по математике для учеников 1–11 классов.
+  Подготовка к ОГЭ и ЕГЭ (база и профиль), восполнение пробелов в школьной
+  программе и математика с нуля.
+site_author: Алёна Терехова
+site_url: https://alena-teacher.github.io/about-me/
+repo_url: https://github.com/alena-teacher/about-me
+repo_name: alena-teacher/about-me
+edit_uri: edit/main/docs/
+copyright: >-
+  © 2026 Алёна Терехова · Репетитор по математике ·
+  <a href="https://t.me/Alena_t85" target="_blank" rel="noopener">Telegram</a>
+
+theme:
+  name: material
+  language: ru
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  custom_dir: overrides
+  font:
+    text: Manrope
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Включить тёмную тему
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Включить светлую тему
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - announce.dismiss
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tooltips
+    - toc.follow
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/Alena_t85
+      name: Написать в Telegram
+    - icon: fontawesome/brands/whatsapp
+      link: https://wa.me/79156788272
+      name: Написать в WhatsApp
+    - icon: fontawesome/solid/phone
+      link: tel:+79156788272
+      name: Позвонить
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+
+nav:
+  - Главная: index.md
+  - Обо мне: about.md
+  - Направления:
+      - Обзор: programs/index.md
+      - Подготовка к ОГЭ: programs/oge.md
+      - Подготовка к ЕГЭ: programs/ege.md
+      - Школьная программа 1–11: programs/school.md
+      - Математика с нуля: programs/from-scratch.md
+  - Как проходят занятия: methodology.md
+  - Результаты: results.md
+  - Вопросы и ответы: faq.md
+  - Контакты: contacts.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+      toc_depth: 2
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search:
+      lang:
+        - ru
+        - en

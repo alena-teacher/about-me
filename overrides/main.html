@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block announce %}
+  <span class="announce__dot"></span>
+  Идёт набор на 2026/2027 учебный год —
+  <a href="{{ 'contacts/' | url }}">напишите мне</a>
+{% endblock %}
+
+{% block extrahead %}
+  {{ super() }}
+  <script>document.documentElement.classList.add("js");</script>
+  {% set og_title = config.site_name if page and page.is_homepage else (page.title ~ ' — ' ~ config.site_name if page and page.title and page.title != config.site_name else config.site_name) %}
+  {% set og_description = page.meta.description if page and page.meta and page.meta.description else config.site_description %}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ og_description }}">
+  <meta property="og:url" content="{{ page.canonical_url if page and page.canonical_url else config.site_url }}">
+  <meta property="og:image" content="{{ config.site_url }}assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ru_RU">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ og_title }}">
+  <meta name="twitter:description" content="{{ og_description }}">
+  <meta name="twitter:image" content="{{ config.site_url }}assets/og-image.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Алёна Терехова",
+    "jobTitle": "Репетитор по математике",
+    "description": "Индивидуальные онлайн-занятия по математике для учеников 1–11 классов. Подготовка к ОГЭ и ЕГЭ, школьная программа, математика с нуля.",
+    "url": "{{ config.site_url }}",
+    "image": "{{ config.site_url }}assets/avatar.png",
+    "telephone": "+7-915-678-8272",
+    "sameAs": [
+      "https://t.me/Alena_t85",
+      "https://wa.me/79156788272",
+      "https://github.com/alena-teacher"
+    ],
+    "knowsAbout": [
+      "Математика",
+      "Подготовка к ОГЭ",
+      "Подготовка к ЕГЭ",
+      "Школьная программа 1–11 класс"
+    ]
+  }
+  </script>
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  {% if page and page.is_homepage %}
+  <a class="floating-cta" href="https://t.me/Alena_t85" target="_blank" rel="noopener" aria-label="Записаться на занятие в Telegram">
+    <span class="floating-cta__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M21.94 4.3a1.5 1.5 0 0 0-1.53-.24L2.7 11.23a1.5 1.5 0 0 0 .12 2.8l4.4 1.3 1.68 5.16a1.5 1.5 0 0 0 2.5.62l2.43-2.3 4.2 3.1a1.5 1.5 0 0 0 2.36-.9l2.7-14.9a1.5 1.5 0 0 0-.75-1.8ZM9.6 14.2l-.5 3.1-.93-3.05 8.9-6.3-7.47 6.25Z"/></svg>
+    </span>
+    <span class="floating-cta__text">Записаться</span>
+  </a>
+  {% endif %}
+{% endblock %}
