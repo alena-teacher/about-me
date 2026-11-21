@@ -63,20 +63,41 @@
     );
   }
 
-  // Мягкое свечение за курсором
+  // Мягкое свечение за курсором: догоняет и растворяется
   var cursorGlow = document.querySelector(".cursor-glow");
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var touchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  var glowReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (cursorGlow && finePointer && !touchDevice) {
+  if (cursorGlow && finePointer && !touchDevice && !glowReduced) {
     var glowX = window.innerWidth / 2;
     var glowY = window.innerHeight / 2;
-    var glowTick = false;
+    var glowTargetX = glowX;
+    var glowTargetY = glowY;
     var glowVisible = false;
+    var glowFrame = 0;
+    var glowIdleTimer = 0;
+    var glowSnap = true;
 
     function renderCursorGlow() {
+      var dx = glowTargetX - glowX;
+      var dy = glowTargetY - glowY;
+
+      glowX += dx * 0.1;
+      glowY += dy * 0.1;
       cursorGlow.style.transform = "translate3d(" + glowX + "px," + glowY + "px,0)";
-      glowTick = false;
+
+      if (glowVisible || Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
+        glowFrame = requestAnimationFrame(renderCursorGlow);
+      } else {
+        glowX = glowTargetX;
+        glowY = glowTargetY;
+        glowFrame = 0;
+      }
+    }
+
+    function startCursorGlow() {
+      if (!glowFrame) glowFrame = requestAnimationFrame(renderCursorGlow);
     }
 
     function showCursorGlow() {
@@ -89,6 +110,7 @@
     function hideCursorGlow() {
       cursorGlow.classList.remove("is-visible");
       glowVisible = false;
+      startCursorGlow();
     }
 
     window.addEventListener(
@@ -96,20 +118,34 @@
       function (event) {
         if (event.pointerType && event.pointerType !== "mouse") return;
 
-        glowX = event.clientX;
-        glowY = event.clientY;
-        showCursorGlow();
-
-        if (!glowTick) {
-          glowTick = true;
-          requestAnimationFrame(renderCursorGlow);
+        if (glowSnap) {
+          glowX = event.clientX;
+          glowY = event.clientY;
+          glowSnap = false;
         }
+
+        glowTargetX = event.clientX;
+        glowTargetY = event.clientY;
+        showCursorGlow();
+        startCursorGlow();
+
+        clearTimeout(glowIdleTimer);
+        glowIdleTimer = setTimeout(hideCursorGlow, 220);
       },
       { passive: true }
     );
 
-    document.addEventListener("mouseleave", hideCursorGlow);
-    window.addEventListener("blur", hideCursorGlow);
+    document.addEventListener("mouseleave", function () {
+      clearTimeout(glowIdleTimer);
+      hideCursorGlow();
+      glowSnap = true;
+    });
+
+    window.addEventListener("blur", function () {
+      clearTimeout(glowIdleTimer);
+      hideCursorGlow();
+      glowSnap = true;
+    });
   }
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
