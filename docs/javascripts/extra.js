@@ -78,13 +78,19 @@
     var glowFrame = 0;
     var glowIdleTimer = 0;
     var glowSnap = true;
+    var glowLastTime = 0;
 
-    function renderCursorGlow() {
+    function renderCursorGlow(time) {
+      var dt = glowLastTime ? Math.min((time - glowLastTime) / 1000, 0.05) : 1 / 60;
+      var isDark = document.body.getAttribute("data-md-color-scheme") === "slate";
+      var smoothing = isDark ? 5.5 : 3;
+      var ease = 1 - Math.exp(-smoothing * dt);
       var dx = glowTargetX - glowX;
       var dy = glowTargetY - glowY;
 
-      glowX += dx * 0.08;
-      glowY += dy * 0.08;
+      glowLastTime = time;
+      glowX += dx * ease;
+      glowY += dy * ease;
       cursorGlow.style.transform = "translate3d(" + glowX + "px," + glowY + "px,0)";
 
       if (glowVisible || Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
@@ -93,6 +99,7 @@
         glowX = glowTargetX;
         glowY = glowTargetY;
         glowFrame = 0;
+        glowLastTime = 0;
       }
     }
 
