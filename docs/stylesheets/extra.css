@@ -55,26 +55,29 @@ body {
     radial-gradient(900px 460px at -10% 18%, rgba(14, 165, 233, 0.1), transparent 58%);
 }
 
-/* ---------- Мягкое свечение за курсором ---------- */
+/* ---------- Свечение-комета за курсором ---------- */
 
 .cursor-glow {
+  --comet-head: radial-gradient(
+    circle,
+    rgba(129, 140, 248, 0.22) 0%,
+    rgba(167, 139, 250, 0.1) 48%,
+    transparent 74%
+  );
+  --comet-tail: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(167, 139, 250, 0.12) 45%,
+    rgba(129, 140, 248, 0.28) 100%
+  );
+  --tail-length: 70px;
+  --tail-height: 60px;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 0;
-  width: 440px;
-  height: 440px;
-  margin: -220px 0 0 -220px;
-  border-radius: 50%;
-  background: linear-gradient(
-    120deg,
-    rgba(129, 140, 248, 0.24) 0%,
-    rgba(167, 139, 250, 0.2) 52%,
-    rgba(125, 211, 252, 0.17) 100%
-  );
-  -webkit-mask-image: radial-gradient(circle at center, #000 0%, #000 22%, transparent 76%);
-  mask-image: radial-gradient(circle at center, #000 0%, #000 22%, transparent 76%);
-  filter: blur(30px);
+  width: 0;
+  height: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.7s ease;
@@ -86,15 +89,44 @@ body {
   transition-duration: 0.4s;
 }
 
+.cursor-glow__head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 240px;
+  margin: -120px 0 0 -120px;
+  border-radius: 50%;
+  background: var(--comet-head);
+  filter: blur(24px);
+}
+
+.cursor-glow__tail {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: var(--tail-length);
+  height: var(--tail-height);
+  transform: translateY(-50%);
+  transform-origin: 100% 50%;
+  border-radius: 50%;
+  background: var(--comet-tail);
+  filter: blur(20px);
+}
+
 [data-md-color-scheme="slate"] .cursor-glow {
-  background: radial-gradient(
+  --comet-head: radial-gradient(
     circle,
-    rgba(196, 181, 253, 0.13) 0%,
-    rgba(124, 58, 237, 0.06) 40%,
-    transparent 70%
+    rgba(196, 181, 253, 0.15) 0%,
+    rgba(124, 58, 237, 0.07) 50%,
+    transparent 74%
   );
-  -webkit-mask-image: none;
-  mask-image: none;
+  --comet-tail: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(124, 58, 237, 0.08) 45%,
+    rgba(196, 181, 253, 0.2) 100%
+  );
 }
 
 @media (hover: none), (pointer: coarse) {
