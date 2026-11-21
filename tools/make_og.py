@@ -210,7 +210,7 @@ def main() -> None:
     footer_font = load_font(20, 600)
     draw.text(
         (left, 545),
-        "alena-teacher.github.io/about-me",
+        "alena-teacher.github.io/services",
         font=footer_font,
         fill=(255, 255, 255, 150),
     )

@@ -4,7 +4,7 @@
 
 Сайт-визитка на **MkDocs** с темой **Material for MkDocs**. Внутри — главная страница с офферами, направления подготовки, описание методики, результаты, FAQ и контакты.
 
-**Адрес сайта:** <https://alena-teacher.github.io/about-me/>
+**Адрес сайта:** <https://alena-teacher.github.io/services/>
 
 ## Что внутри
 
@@ -65,7 +65,7 @@ mkdocs build --strict
 
 ## Публикация на GitHub Pages
 
-Репозиторий: <https://github.com/alena-teacher/about-me>
+Репозиторий: <https://github.com/alena-teacher/services>
 
 В проекте уже есть workflow `.github/workflows/deploy.yml`. При каждом пуше в `main` он собирает сайт и публикует его в ветку `gh-pages` (через `mkdocs gh-deploy`).
 
@@ -74,7 +74,7 @@ mkdocs build --strict
 ```bash
 git init
 git branch -M main
-git remote add origin git@github-alena:alena-teacher/about-me.git
+git remote add origin git@github-alena:alena-teacher/services.git
 git add .
 git commit -m "Сайт репетитора по математике на MkDocs Material"
 git push -u origin main
@@ -86,7 +86,7 @@ git push -u origin main
 2. Откройте **Settings → Pages**.
 3. В разделе **Build and deployment** выберите **Deploy from a branch**.
 4. Укажите ветку **gh-pages** и папку **/(root)**, сохраните.
-5. Через 1–2 минуты сайт будет доступен по адресу <https://alena-teacher.github.io/about-me/>.
+5. Через 1–2 минуты сайт будет доступен по адресу <https://alena-teacher.github.io/services/>.
 
 > Ветка `gh-pages` уже создана первым запуском workflow. Если сайт всё ещё отдаёт 404, проверьте, что в **Settings → Pages** выбрана именно эта ветка.
 
@@ -126,5 +126,5 @@ Host github-alena
 Поэтому remote указывается так:
 
 ```bash
-git remote add origin git@github-alena:alena-teacher/about-me.git
+git remote add origin git@github-alena:alena-teacher/services.git
 ```
