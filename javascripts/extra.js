@@ -63,6 +63,55 @@
     );
   }
 
+  // Мягкое свечение за курсором
+  var cursorGlow = document.querySelector(".cursor-glow");
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var touchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+  if (cursorGlow && finePointer && !touchDevice) {
+    var glowX = window.innerWidth / 2;
+    var glowY = window.innerHeight / 2;
+    var glowTick = false;
+    var glowVisible = false;
+
+    function renderCursorGlow() {
+      cursorGlow.style.transform = "translate3d(" + glowX + "px," + glowY + "px,0)";
+      glowTick = false;
+    }
+
+    function showCursorGlow() {
+      if (!glowVisible) {
+        cursorGlow.classList.add("is-visible");
+        glowVisible = true;
+      }
+    }
+
+    function hideCursorGlow() {
+      cursorGlow.classList.remove("is-visible");
+      glowVisible = false;
+    }
+
+    window.addEventListener(
+      "pointermove",
+      function (event) {
+        if (event.pointerType && event.pointerType !== "mouse") return;
+
+        glowX = event.clientX;
+        glowY = event.clientY;
+        showCursorGlow();
+
+        if (!glowTick) {
+          glowTick = true;
+          requestAnimationFrame(renderCursorGlow);
+        }
+      },
+      { passive: true }
+    );
+
+    document.addEventListener("mouseleave", hideCursorGlow);
+    window.addEventListener("blur", hideCursorGlow);
+  }
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var revealItems = document.querySelectorAll("[data-reveal]");
 

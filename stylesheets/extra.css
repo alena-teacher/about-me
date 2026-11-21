@@ -55,6 +55,55 @@ body {
     radial-gradient(900px 460px at -10% 18%, rgba(14, 165, 233, 0.1), transparent 58%);
 }
 
+/* ---------- Мягкое свечение за курсором ---------- */
+
+.cursor-glow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 420px;
+  height: 420px;
+  margin: -210px 0 0 -210px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(91, 75, 255, 0.09) 0%,
+    rgba(14, 165, 233, 0.04) 40%,
+    transparent 70%
+  );
+  filter: blur(28px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  will-change: transform;
+}
+
+.cursor-glow.is-visible {
+  opacity: 1;
+}
+
+[data-md-color-scheme="slate"] .cursor-glow {
+  background: radial-gradient(
+    circle,
+    rgba(196, 181, 253, 0.13) 0%,
+    rgba(124, 58, 237, 0.06) 40%,
+    transparent 70%
+  );
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
 .md-typeset {
   font-size: 0.82rem;
   line-height: 1.7;
