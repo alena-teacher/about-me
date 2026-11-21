@@ -293,6 +293,15 @@
       background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 6px);
     }
 
+    /* Мусор растворяется, когда в колонку попадает правильный ответ */
+    .cell.is-clearing {
+      z-index: 2;
+      background: rgba(16, 185, 129, 0.55);
+      box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.85);
+      pointer-events: none;
+      animation: clear-cell 0.36s ease-out forwards;
+    }
+
     /* Падающий блок с выражением */
     .block {
       position: absolute;
@@ -692,6 +701,17 @@
       }
     }
 
+    @keyframes clear-cell {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+    }
+
     @keyframes board-ok {
       0%,
       100% {
@@ -860,9 +880,9 @@
           <p class="panel__lead">Решите пример и направьте блок в колонку с правильным ответом. Ошибка превращается в мусор.</p>
           <ul class="rules">
             <li><b>← →</b> или свайпы — двигать блок</li>
-            <li><b>↓</b> — ускорить падение</li>
-            <li><b>P / Esc</b> — пауза</li>
-            <li><b>Правило</b> не дайте мусору дойти до верхнего ряда</li>
+            <li><b>↓</b> — ускорить · <b>P / Esc</b> — пауза</li>
+            <li><b>Верно</b> — мусор в этой колонке исчезает</li>
+            <li><b>Мусор</b> до верхнего ряда — конец игры</li>
           </ul>
           <div class="panel__actions">
             <button class="btn btn--primary" id="startBtn" type="button">Играть</button>
@@ -1383,12 +1403,37 @@
       }
 
       // ---------- Правильное и неправильное попадание ----------
+      // Убирает весь мусор в колонке и возвращает количество очищенных клеток.
+      function clearGarbage(col) {
+        let cleared = 0;
+        const clearedCells = [];
+        for (let row = 0; row < ROWS; row += 1) {
+          if (state.garbage[row][col]) {
+            state.garbage[row][col] = false;
+            clearedCells.push(cellEls[row * COLS + col]);
+            cleared += 1;
+          }
+        }
+        if (cleared > 0) {
+          updateCells();
+          clearedCells.forEach((cell) => {
+            cell.classList.add("is-clearing");
+            window.setTimeout(() => cell.classList.remove("is-clearing"), 380);
+          });
+        }
+        return cleared;
+      }
+
       function handleCorrect(col) {
         const previousCombo = state.combo;
         state.combo = previousCombo + 1;
         state.correct += 1;
 
-        const points = 10 + (state.level - 1) * 2 + Math.min(previousCombo, 10) * 5;
+        // Бонус за очистку: каждая убранная из колонки мусорная клетка даёт 5 очков.
+        const cleared = stackHeight(col);
+        const clearBonus = cleared * 5;
+        const points = 10 + (state.level - 1) * 2 + Math.min(previousCombo, 10) * 5 + clearBonus;
+        if (cleared > 0) clearGarbage(col);
         state.score += points;
 
         const nextLevel = Math.min(MAX_LEVEL, 1 + Math.floor(state.correct / LEVEL_STEP));
@@ -1404,7 +1449,11 @@
         flashBoard("ok");
         spawnFx(col, "+" + points, "ok");
         updateHud();
-        if (leveledUp) showToast("Уровень " + state.level);
+
+        const messages = [];
+        if (cleared > 0) messages.push("Мусор убран: +" + clearBonus);
+        if (leveledUp) messages.push("Уровень " + state.level);
+        if (messages.length > 0) showToast(messages.join(" · "));
 
         state.resolveAt = performance.now() + 420;
       }
