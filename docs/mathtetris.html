@@ -981,7 +981,6 @@
         level: 1,
         correct: 0,
         fast: false,
-        refreshAt: 0,
         resolveAt: 0,
         overAt: 0,
         lastTime: 0,
@@ -1141,13 +1140,6 @@
         return ROWS - 1 - stackHeight(col);
       }
 
-      function refreshInterval() {
-        const baseSpeed = Math.min(3.4, 1.15 + (state.level - 1) * 0.16);
-        // Обновляем ответы примерно на середине падения блока:
-        // так они действительно меняются, но не в последний момент.
-        return Math.max(1200, Math.round((ROWS / baseSpeed) * 500));
-      }
-
       // ---------- Отрисовка ----------
       function updateCells() {
         for (let row = 0; row < ROWS; row += 1) {
@@ -1278,7 +1270,6 @@
         state.level = 1;
         state.correct = 0;
         state.fast = false;
-        state.refreshAt = 0;
         state.resolveAt = 0;
         state.overAt = 0;
         state.lastTime = performance.now();
@@ -1292,11 +1283,12 @@
         renderAnswers(false);
         renderBlock();
         hideOverlays();
-        nextRound(state.lastTime);
+        nextRound();
       }
 
       // Новый раунд: сначала выбираем колонку ответа, затем пример и дистракторы.
-      function nextRound(now) {
+      // Ответы меняются только здесь — во время падения блока они неподвижны.
+      function nextRound() {
         if (state.phase !== "playing") return;
 
         const targetCol = randInt(0, COLS - 1);
@@ -1316,30 +1308,12 @@
           value: expression.value,
           text: expression.text
         };
-        state.refreshAt = now + refreshInterval();
         state.resolveAt = 0;
 
         clearAnswerMarks();
         renderAnswers(true);
         renderBlock();
         highlightTarget();
-      }
-
-      // Обновляем ответы, всегда сохраняя значение летящего блока среди вариантов.
-      function refreshAnswers() {
-        if (!state.block || state.phase !== "playing") return;
-
-        const targetCol = randInt(0, COLS - 1);
-        const values = generateAnswers(state.block.value, state.level);
-        const correctPos = values.indexOf(state.block.value);
-        const temp = values[correctPos];
-        values[correctPos] = values[targetCol];
-        values[targetCol] = temp;
-
-        state.answers = values;
-        state.refreshAt = performance.now() + refreshInterval();
-        renderAnswers(true);
-        showToast("Ответы обновились");
       }
 
       function setFast(value) {
@@ -1503,19 +1477,9 @@
           }
           if (state.resolveAt && now >= state.resolveAt) {
             state.resolveAt = 0;
-            nextRound(now);
+            nextRound();
           }
           return;
-        }
-
-        // Ответы меняются только пока блок в верхней половине поля,
-        // чтобы не подменять правильный ответ в последний момент.
-        if (now >= state.refreshAt) {
-          if (state.block.y < ROWS * 0.55) {
-            refreshAnswers();
-          } else {
-            state.refreshAt = now + 1200;
-          }
         }
 
         state.block.y += fallSpeed() * dt;
