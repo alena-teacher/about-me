@@ -53,6 +53,7 @@
 
 {% block content %}
   {{ super() }}
+  {% include "partials/cursor-glow.html" %}
   {% include "partials/math-decor.html" %}
   {% include "partials/floating-cta.html" %}
   {% include "partials/call-cta.html" %}
