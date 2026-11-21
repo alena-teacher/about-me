@@ -16,6 +16,53 @@
     copyright.innerHTML = copyright.innerHTML.replace(/©\s*\d{4}/, "© " + copyrightYear);
   }
 
+  // Декоративные формулы слева: не заходим на шапку и футер
+  var mathDecor = document.querySelector(".math-decor");
+  var pageFooter = document.querySelector(".md-footer");
+
+  function positionMathDecor() {
+    if (!mathDecor) return;
+
+    var header = document.querySelector(".md-header");
+    var tabs = document.querySelector(".md-tabs");
+    var bottom = 0;
+
+    if (header) bottom = Math.max(bottom, header.getBoundingClientRect().bottom);
+    if (tabs) bottom = Math.max(bottom, tabs.getBoundingClientRect().bottom);
+    if (bottom > 0) mathDecor.style.top = Math.round(bottom + 16) + "px";
+  }
+
+  function toggleMathDecor() {
+    if (!mathDecor || !pageFooter) return;
+
+    var footerTop = pageFooter.getBoundingClientRect().top;
+    mathDecor.classList.toggle("is-hidden", footerTop < window.innerHeight - 24);
+  }
+
+  if (mathDecor) {
+    var decorTick = false;
+
+    function updateMathDecor() {
+      positionMathDecor();
+      toggleMathDecor();
+    }
+
+    updateMathDecor();
+    window.addEventListener("resize", updateMathDecor);
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (decorTick) return;
+        decorTick = true;
+        requestAnimationFrame(function () {
+          updateMathDecor();
+          decorTick = false;
+        });
+      },
+      { passive: true }
+    );
+  }
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var revealItems = document.querySelectorAll("[data-reveal]");
 
