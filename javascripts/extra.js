@@ -9,6 +9,13 @@
     studyYear.textContent = year + "/" + (year + 1);
   }
 
+  // Актуальный год в копирайте
+  var copyright = document.querySelector(".md-copyright__highlight");
+  if (copyright) {
+    var copyrightYear = new Date().getFullYear();
+    copyright.innerHTML = copyright.innerHTML.replace(/©\s*\d{4}/, "© " + copyrightYear);
+  }
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var revealItems = document.querySelectorAll("[data-reveal]");
 
