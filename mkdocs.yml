@@ -73,6 +73,9 @@ extra_css:
 extra_javascript:
   - javascripts/extra.js
 
+hooks:
+  - hooks/study_year.py
+
 nav:
   - Главная: index.md
   - Обо мне: about.md

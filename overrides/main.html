@@ -2,7 +2,9 @@
 
 {% block announce %}
   <span class="announce__dot"></span>
-  Идёт набор на 2026/2027 учебный год —
+  Идёт набор на
+  <span id="study-year">{{ config.extra.study_year_start }}/{{ config.extra.study_year_end }}</span>
+  учебный год —
   <a href="{{ 'contacts/' | url }}">напишите мне</a>
 {% endblock %}
 

@@ -2,6 +2,13 @@
 (function () {
   "use strict";
 
+  // Автоматически подставляем текущий и следующий год в анонс
+  var studyYear = document.getElementById("study-year");
+  if (studyYear) {
+    var year = new Date().getFullYear();
+    studyYear.textContent = year + "/" + (year + 1);
+  }
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var revealItems = document.querySelectorAll("[data-reveal]");
 
