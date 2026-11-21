@@ -1215,7 +1215,7 @@ body {
 .math-decor {
   display: none;
   position: fixed;
-  left: 0.4rem;
+  left: 0.25rem;
   top: 10rem;
   bottom: 1rem;
   z-index: 0;
@@ -1223,13 +1223,12 @@ body {
   flex-direction: column;
   justify-content: space-around;
   gap: 0.35rem;
-  overflow: hidden;
+  overflow: visible;
   color: var(--brand-1);
   pointer-events: none;
   user-select: none;
+  font-size: clamp(0.68rem, 0.82vw, 0.86rem);
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 3%, #000 97%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 3%, #000 97%, transparent 100%);
 }
 
 .math-decor.is-hidden {
@@ -1239,29 +1238,34 @@ body {
 
 .math-decor__item {
   display: block;
+  width: max-content;
+  max-width: none;
+  margin-left: var(--shift, 0px);
+  margin-top: var(--vshift, 0px);
   font-family: "Cambria Math", "STIX Two Math", "DejaVu Serif", Georgia, serif;
-  font-size: clamp(0.68rem, 0.82vw, 0.86rem);
+  font-size: calc(1em * var(--size, 1));
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: 0.01em;
-  overflow-wrap: break-word;
-  opacity: 0.4;
-  transform: rotate(-3deg);
+  white-space: nowrap;
+  opacity: var(--math-opacity, 0.4);
+  transform: rotate(var(--tilt, 0deg));
+  clip-path: inset(0 0 0 0);
+  animation: math-type 18s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: opacity, clip-path;
 }
 
 .math-decor__item:nth-child(3n) {
-  opacity: 0.34;
-  transform: rotate(3deg);
+  --math-opacity: 0.34;
 }
 
 .math-decor__item:nth-child(3n + 1) {
-  opacity: 0.42;
-  transform: rotate(-5deg);
+  --math-opacity: 0.42;
 }
 
 .math-decor__item:nth-child(4n) {
-  opacity: 0.36;
-  transform: rotate(4deg);
+  --math-opacity: 0.36;
 }
 
 .math-decor__item sup,
@@ -1275,19 +1279,44 @@ body {
 }
 
 [data-md-color-scheme="slate"] .math-decor__item {
-  opacity: 0.52;
+  --math-opacity: 0.52;
 }
 
 [data-md-color-scheme="slate"] .math-decor__item:nth-child(3n) {
-  opacity: 0.44;
+  --math-opacity: 0.44;
 }
 
 [data-md-color-scheme="slate"] .math-decor__item:nth-child(3n + 1) {
-  opacity: 0.54;
+  --math-opacity: 0.54;
 }
 
 [data-md-color-scheme="slate"] .math-decor__item:nth-child(4n) {
-  opacity: 0.46;
+  --math-opacity: 0.46;
+}
+
+@keyframes math-type {
+  0%,
+  4% {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  8% {
+    opacity: var(--math-opacity, 0.4);
+    clip-path: inset(0 100% 0 0);
+  }
+  18% {
+    opacity: var(--math-opacity, 0.4);
+    clip-path: inset(0 0 0 0);
+  }
+  80% {
+    opacity: var(--math-opacity, 0.4);
+    clip-path: inset(0 0 0 0);
+  }
+  88%,
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @media screen and (min-width: 1440px) {
@@ -1744,5 +1773,13 @@ body {
   .js [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .math-decor__item {
+    animation: none !important;
+    opacity: var(--math-opacity, 0.4) !important;
+    clip-path: none !important;
   }
 }
