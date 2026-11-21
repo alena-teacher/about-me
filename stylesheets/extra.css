@@ -180,7 +180,8 @@ body {
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  padding: 0;
   transform-origin: center;
   transition: transform 0.2s ease;
 }
@@ -228,6 +229,10 @@ body {
 .md-tabs__item:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0 12px;
 }
 
 .md-tabs__item--active:not(:has(> .md-tabs__link[href$="mathtetris.html"])) .md-tabs__link {
@@ -240,7 +245,7 @@ body {
   content: "";
   position: absolute;
   right: 0;
-  bottom: -0.55rem;
+  bottom: 0.35rem;
   left: 0;
   height: 2px;
   border-radius: 2px;
@@ -265,8 +270,9 @@ body {
 .md-tabs__item:has(> .md-tabs__link[href$="mathtetris.html"]) {
   display: flex;
   align-items: center;
-  padding-right: 0.3rem;
-  padding-left: 0.3rem;
+  margin-right: 0.3rem;
+  margin-left: 0.3rem;
+  padding: 0;
   transform-origin: center;
   transition: transform 0.2s ease;
 }
