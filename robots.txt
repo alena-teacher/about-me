@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://alena-teacher.github.io/about-me/sitemap.xml
