@@ -83,8 +83,8 @@
       var dx = glowTargetX - glowX;
       var dy = glowTargetY - glowY;
 
-      glowX += dx * 0.1;
-      glowY += dy * 0.1;
+      glowX += dx * 0.08;
+      glowY += dy * 0.08;
       cursorGlow.style.transform = "translate3d(" + glowX + "px," + glowY + "px,0)";
 
       if (glowVisible || Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
