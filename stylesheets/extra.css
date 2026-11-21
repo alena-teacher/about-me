@@ -68,9 +68,9 @@ body {
   border-radius: 50%;
   background: linear-gradient(
     120deg,
-    rgba(129, 140, 248, 0.24) 0%,
-    rgba(167, 139, 250, 0.2) 52%,
-    rgba(125, 211, 252, 0.17) 100%
+    rgba(224, 231, 255, 0.6) 0%,
+    rgba(237, 233, 254, 0.5) 52%,
+    rgba(224, 242, 254, 0.45) 100%
   );
   -webkit-mask-image: radial-gradient(circle at center, #000 0%, #000 22%, transparent 76%);
   mask-image: radial-gradient(circle at center, #000 0%, #000 22%, transparent 76%);
