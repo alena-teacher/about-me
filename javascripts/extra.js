@@ -79,6 +79,7 @@
     var glowIdleTimer = 0;
     var glowSnap = true;
     var glowLastTime = 0;
+    var glowAngle = 0;
 
     function renderCursorGlow(time) {
       var dt = glowLastTime ? Math.min((time - glowLastTime) / 1000, 0.05) : 1 / 60;
@@ -87,11 +88,22 @@
       var ease = 1 - Math.exp(-smoothing * dt);
       var dx = glowTargetX - glowX;
       var dy = glowTargetY - glowY;
+      var distance = Math.hypot(dx, dy);
+
+      if (distance > 1) {
+        glowAngle = Math.atan2(dy, dx);
+      }
+
+      var tailLength = Math.min(420, 70 + distance * 1.6);
+      var tailHeight = Math.min(120, 60 + distance * 0.12);
 
       glowLastTime = time;
       glowX += dx * ease;
       glowY += dy * ease;
-      cursorGlow.style.transform = "translate3d(" + glowX + "px," + glowY + "px,0)";
+      cursorGlow.style.setProperty("--tail-length", tailLength + "px");
+      cursorGlow.style.setProperty("--tail-height", tailHeight + "px");
+      cursorGlow.style.transform =
+        "translate3d(" + glowX + "px," + glowY + "px,0) rotate(" + glowAngle + "rad)";
 
       if (glowVisible || Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
         glowFrame = requestAnimationFrame(renderCursorGlow);
