@@ -315,32 +315,46 @@
       will-change: top, left;
     }
 
-    .block span {
+    .block__inner {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 1px;
       width: calc(100% - 6px);
       height: calc(100% - 6px);
-      padding: 0 2px;
+      padding: 0;
       border-radius: 10px;
       background: var(--grad-warm);
       color: #3b2200;
-      font-size: clamp(9px, calc(var(--cell) * 0.205), 14px);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      white-space: nowrap;
       box-shadow: 0 7px 16px -7px rgba(249, 115, 22, 0.85), inset 0 -2px 0 rgba(0, 0, 0, 0.13);
       transition: filter 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .block.is-fast span {
-      filter: brightness(1.06);
-      box-shadow: 0 4px 10px -6px rgba(249, 115, 22, 0.9), inset 0 -2px 0 rgba(0, 0, 0, 0.13);
+    /* Первое число — крупно, оператор и второе число — отдельной строкой */
+    .block__a {
+      display: block;
+      font-size: clamp(14px, calc(var(--cell) * 0.38), 24px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      white-space: nowrap;
     }
 
-    .block.is-tight span {
-      font-size: clamp(8px, calc(var(--cell) * 0.17), 12px);
-      letter-spacing: -0.05em;
+    .block__b {
+      display: block;
+      font-size: clamp(10px, calc(var(--cell) * 0.26), 16px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.06em;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    .block.is-fast .block__inner {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 10px -6px rgba(249, 115, 22, 0.9), inset 0 -2px 0 rgba(0, 0, 0, 0.13);
     }
 
     .board.is-fast {
@@ -869,7 +883,12 @@
     <div class="playfield">
       <div class="board" id="board" aria-label="Игровое поле: 5 колонок и 10 рядов">
         <div class="cells" id="cells"></div>
-        <div class="block" id="block" hidden><span id="blockText"></span></div>
+        <div class="block" id="block" hidden>
+          <span class="block__inner">
+            <span class="block__a" id="blockA"></span>
+            <span class="block__b" id="blockB"></span>
+          </span>
+        </div>
       </div>
       <div class="answers" id="answers" aria-label="Ответы колонок"></div>
 
@@ -947,7 +966,8 @@
         board: $("board"),
         cells: $("cells"),
         block: $("block"),
-        blockText: $("blockText"),
+        blockA: $("blockA"),
+        blockB: $("blockB"),
         answers: $("answers"),
         score: $("score"),
         best: $("best"),
@@ -1177,9 +1197,14 @@
         els.block.hidden = false;
         els.block.style.left = ((state.block.col * 100) / COLS) + "%";
         els.block.style.top = ((state.block.y * 100) / ROWS) + "%";
-        els.blockText.textContent = state.block.text;
+
+        // Делим пример на две строки, чтобы числа были крупными.
+        const parts = state.block.text.split(" ");
+        els.blockA.textContent = parts[0];
+        els.blockB.textContent = parts[1] + " " + parts[2];
+        els.block.dataset.expr = state.block.text;
+        els.block.setAttribute("aria-label", "Пример: " + state.block.text);
         els.block.classList.toggle("is-fast", state.fast);
-        els.block.classList.toggle("is-tight", state.block.text.length > 7);
       }
 
       function renderAnswers(animate) {
@@ -1593,40 +1618,75 @@
       $("restartBtn").addEventListener("click", startGame);
 
       // ---------- Свайпы по полю ----------
-      let touchStart = null;
+      // На современных телефонах используем Pointer Events: они надёжнее
+      // работают в iOS Safari и Android Chrome, чем отдельные touch-события.
+      function applySwipe(start, x, y) {
+        const dx = x - start.x;
+        const dy = y - start.y;
 
-      els.board.addEventListener("touchstart", (event) => {
-        if (state.phase !== "playing") return;
-        const touch = event.changedTouches[0];
-        touchStart = { x: touch.clientX, y: touch.clientY };
-        if (event.cancelable) event.preventDefault();
-      }, { passive: false });
-
-      els.board.addEventListener("touchmove", (event) => {
-        if (!touchStart || state.phase !== "playing") return;
-        const touch = event.changedTouches[0];
-        const dx = touch.clientX - touchStart.x;
-        const dy = touch.clientY - touchStart.y;
-
-        if (Math.abs(dx) > 26 && Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy)) {
           moveBlock(dx > 0 ? 1 : -1);
-          touchStart.x = touch.clientX;
-          touchStart.y = touch.clientY;
-        } else if (dy > 34 && dy > Math.abs(dx) * 1.2) {
+          start.x = x;
+          start.y = y;
+        } else if (dy > 26 && dy > Math.abs(dx) * 1.2) {
           pulseFast(500);
-          touchStart.y = touch.clientY;
+          start.y = y;
         }
+      }
 
-        if (event.cancelable) event.preventDefault();
-      }, { passive: false });
+      if (window.PointerEvent) {
+        let swipe = null;
 
-      els.board.addEventListener("touchend", () => {
-        touchStart = null;
-      }, { passive: true });
+        els.board.addEventListener("pointerdown", (event) => {
+          if (state.phase !== "playing") return;
+          if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
 
-      els.board.addEventListener("touchcancel", () => {
-        touchStart = null;
-      }, { passive: true });
+          swipe = { id: event.pointerId, x: event.clientX, y: event.clientY };
+          if (els.board.setPointerCapture) {
+            try {
+              els.board.setPointerCapture(event.pointerId);
+            } catch (error) {
+              // Захват не критичен: свайп продолжит работать в пределах поля.
+            }
+          }
+        }, { passive: true });
+
+        els.board.addEventListener("pointermove", (event) => {
+          if (!swipe || state.phase !== "playing" || event.pointerId !== swipe.id) return;
+          applySwipe(swipe, event.clientX, event.clientY);
+          if (event.cancelable) event.preventDefault();
+        }, { passive: false });
+
+        const endSwipe = (event) => {
+          if (swipe && event.pointerId === swipe.id) swipe = null;
+        };
+        els.board.addEventListener("pointerup", endSwipe, { passive: true });
+        els.board.addEventListener("pointercancel", endSwipe, { passive: true });
+        els.board.addEventListener("lostpointercapture", endSwipe, { passive: true });
+      } else {
+        // Запасной вариант для старых браузеров без Pointer Events.
+        let touchStart = null;
+
+        els.board.addEventListener("touchstart", (event) => {
+          if (state.phase !== "playing") return;
+          const touch = event.changedTouches[0];
+          touchStart = { x: touch.clientX, y: touch.clientY };
+          if (event.cancelable) event.preventDefault();
+        }, { passive: false });
+
+        els.board.addEventListener("touchmove", (event) => {
+          if (!touchStart || state.phase !== "playing") return;
+          const touch = event.changedTouches[0];
+          applySwipe(touchStart, touch.clientX, touch.clientY);
+          if (event.cancelable) event.preventDefault();
+        }, { passive: false });
+
+        const endTouch = () => {
+          touchStart = null;
+        };
+        els.board.addEventListener("touchend", endTouch, { passive: true });
+        els.board.addEventListener("touchcancel", endTouch, { passive: true });
+      }
 
       // Автопауза, если вкладка скрыта.
       document.addEventListener("visibilitychange", () => {
