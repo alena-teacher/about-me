@@ -86,7 +86,7 @@ hide:
 <div class="card card--game" markdown>
 <div class="card__icon card__icon--warm" markdown>:material-gamepad-variant:</div>
 <h3>Математический<br>тетрис</h3>
-<p>Игра-тренажёр на устный счёт: решайте примеры и не давайте мусору заполнить колонки.</p>
+<p>Игра-тренажёр на устный счёт: решайте примеры и не давайте ящикам заполнить колонки.</p>
 <a class="card__link" href="mathtetris.html">Играть</a>
 </div>
 </div>
