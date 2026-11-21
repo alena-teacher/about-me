@@ -19,7 +19,7 @@
 - Декоративные математические формулы в левом поле на широких экранах.
 - Лёгкое свечение, следующее за курсором (только на устройствах с мышью).
 - SEO-метатеги, Open Graph, JSON-LD и OG-изображение 1200×630.
-- `robots.txt` и `sitemap.xml` для поисковых систем (включая страницу игры).
+- `sitemap.xml` для поисковых систем (включая страницу игры).
 - Годы в анонсе и копирайте обновляются автоматически — при сборке и в браузере.
 - Автоматическая публикация на GitHub Pages через GitHub Actions.
 
@@ -106,6 +106,18 @@ python tools/make_og.py
 ```
 
 Скрипт пересоберёт `docs/assets/og-image.png` (1200×630).
+
+## Индексация: robots.txt и sitemap.xml
+
+- `sitemap.xml` генерируется из `overrides/sitemap.xml` и доступен по адресу
+  <https://alena-teacher.github.io/services/sitemap.xml>. В нём все основные
+  страницы и `mathtetris.html`.
+- Для project site поисковики читают `robots.txt` только из корня домена:
+  <https://alena-teacher.github.io/robots.txt>.
+- Поэтому основной `robots.txt` лежит в отдельном репозитории
+  `alena-teacher/alena-teacher.github.io` (локально: `../alena-teacher.github.io`).
+- `docs/robots.txt` в этом репозитории — копия для справки; для поисковиков
+  она не является основной.
 
 ## Полезные команды
 
