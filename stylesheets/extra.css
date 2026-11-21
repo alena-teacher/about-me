@@ -945,6 +945,15 @@ body {
   border-color: rgba(244, 63, 94, 0.55);
 }
 
+/* Длинное слово не должно разрываться по буквам в узкой карточке */
+.card--game h3 {
+  font-size: 0.9rem;
+  letter-spacing: -0.03em;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
 .card--game::before {
   content: "Новое";
   position: absolute;
