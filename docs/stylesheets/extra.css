@@ -58,6 +58,7 @@ body {
 /* ---------- Мягкое свечение за курсором ---------- */
 
 .cursor-glow {
+  display: none;
   position: fixed;
   left: 0;
   top: 0;
@@ -87,6 +88,7 @@ body {
 }
 
 [data-md-color-scheme="slate"] .cursor-glow {
+  display: block;
   background: radial-gradient(
     circle,
     rgba(196, 181, 253, 0.13) 0%,

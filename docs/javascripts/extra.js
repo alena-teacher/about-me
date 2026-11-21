@@ -123,6 +123,10 @@
       "pointermove",
       function (event) {
         if (event.pointerType && event.pointerType !== "mouse") return;
+        if (document.body.getAttribute("data-md-color-scheme") !== "slate") {
+          hideCursorGlow();
+          return;
+        }
 
         if (glowSnap) {
           glowX = event.clientX;
@@ -140,6 +144,18 @@
       },
       { passive: true }
     );
+
+    var glowThemeObserver = new MutationObserver(function () {
+      if (document.body.getAttribute("data-md-color-scheme") !== "slate") {
+        clearTimeout(glowIdleTimer);
+        cursorGlow.classList.remove("is-visible");
+        glowVisible = false;
+      }
+    });
+    glowThemeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-md-color-scheme"]
+    });
 
     document.addEventListener("mouseleave", function () {
       clearTimeout(glowIdleTimer);
