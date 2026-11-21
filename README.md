@@ -63,7 +63,7 @@ mkdocs build --strict
 
 Репозиторий: <https://github.com/alena-teacher/about-me>
 
-В проекте уже есть workflow `.github/workflows/deploy.yml`. При каждом пуше в `main` он собирает сайт и публикует его через GitHub Pages (GitHub Actions).
+В проекте уже есть workflow `.github/workflows/deploy.yml`. При каждом пуше в `main` он собирает сайт и публикует его в ветку `gh-pages` (через `mkdocs gh-deploy`).
 
 Первая публикация:
 
@@ -80,11 +80,11 @@ git push -u origin main
 
 1. Откройте **Settings → Actions → General** и убедитесь, что workflow имеет право писать в репозиторий (`Read and write permissions`).
 2. Откройте **Settings → Pages**.
-3. В разделе **Build and deployment** выберите источник **GitHub Actions**.
-4. При необходимости запустите workflow вручную: **Actions → Deploy site → Run workflow**.
+3. В разделе **Build and deployment** выберите **Deploy from a branch**.
+4. Укажите ветку **gh-pages** и папку **/(root)**, сохраните.
 5. Через 1–2 минуты сайт будет доступен по адресу <https://alena-teacher.github.io/about-me/>.
 
-> Workflow использует `actions/configure-pages` с `enablement: true` и пытается включить Pages автоматически. Если у токена не хватает прав, просто включите Pages вручную по инструкции выше.
+> Ветка `gh-pages` уже создана первым запуском workflow. Если сайт всё ещё отдаёт 404, проверьте, что в **Settings → Pages** выбрана именно эта ветка.
 
 ## Обновление OG-изображения
 
@@ -103,7 +103,7 @@ python tools/make_og.py
 # проверить сборку без предупреждений
 mkdocs build --strict
 
-# опубликовать вручную (если нужно без Actions)
+# опубликовать в ветку gh-pages вручную (альтернатива Actions)
 mkdocs gh-deploy --force
 ```
 
