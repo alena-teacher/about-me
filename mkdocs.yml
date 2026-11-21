@@ -1,18 +1,18 @@
-# Сайт репетитора по математике — Алёна Терехова
+# Сайт репетитора по математике — Терехова Елена Викторовна
 # Документация: https://squidfunk.github.io/mkdocs-material/
 
-site_name: Алёна Терехова — репетитор по математике
+site_name: Терехова Елена Викторовна — репетитор по математике
 site_description: >-
   Индивидуальные онлайн-занятия по математике для учеников 1–11 классов.
   Подготовка к ОГЭ и ЕГЭ (база и профиль), восполнение пробелов в школьной
   программе и математика с нуля.
-site_author: Алёна Терехова
+site_author: Терехова Елена Викторовна
 site_url: https://alena-teacher.github.io/about-me/
 repo_url: https://github.com/alena-teacher/about-me
 repo_name: alena-teacher/about-me
 edit_uri: edit/main/docs/
 copyright: >-
-  © 2026 Алёна Терехова · Репетитор по математике ·
+  © 2026 Терехова Елена Викторовна · Репетитор по математике ·
   <a href="https://t.me/Alena_t85" target="_blank" rel="noopener">Telegram</a>
 
 theme:

@@ -29,7 +29,7 @@ hide:
 <div class="hero__visual">
 <div class="hero__blob"></div>
 <div class="hero__portrait">
-<img src="assets/avatar.png" alt="Алёна Терехова — репетитор по математике">
+<img src="assets/avatar.png" alt="Терехова Елена Викторовна — репетитор по математике">
 </div>
 <div class="hero__chip hero__chip--1">ОГЭ и ЕГЭ</div>
 <div class="hero__chip hero__chip--2">1–11 класс</div>

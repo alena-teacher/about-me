@@ -178,13 +178,15 @@ def main() -> None:
         padding_y=11,
     )
 
-    title_font = load_font(84, 800)
-    draw.text((left, 156), "Алёна", font=title_font, fill=(255, 255, 255, 255))
-    draw.text((left, 244), "Терехова", font=title_font, fill=(255, 255, 255, 255))
+    title_font = load_font(78, 800)
+    draw.text((left, 156), "Терехова", font=title_font, fill=(255, 255, 255, 255))
 
-    accent_font = load_font(29, 700)
+    name_font = load_font(46, 700)
+    draw.text((left, 250), "Елена Викторовна", font=name_font, fill=(255, 255, 255, 255))
+
+    accent_font = load_font(27, 700)
     draw.text(
-        (left, 360),
+        (left, 330),
         "Математика, которая становится понятной",
         font=accent_font,
         fill=(232, 228, 255, 255),
