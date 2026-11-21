@@ -25,15 +25,13 @@ theme:
     text: Manrope
     code: JetBrains Mono
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: default
       primary: indigo
       accent: amber
       toggle:
         icon: material/weather-night
         name: Включить тёмную тему
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: indigo
       accent: amber
       toggle:
