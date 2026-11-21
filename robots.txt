@@ -1,8 +1,0 @@
-# Копия для проекта services.
-# Для GitHub Pages project site поисковики читают robots.txt только из корня:
-# https://alena-teacher.github.io/robots.txt
-User-agent: *
-Allow: /
-Disallow: /404.html
-
-Sitemap: https://alena-teacher.github.io/services/sitemap.xml
