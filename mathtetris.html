@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="Математический тетрис — мини-игра для тренировки устного счёта: решайте примеры и не давайте мусору заполнить колонки.">
+  <meta name="description" content="Математический тетрис — мини-игра для тренировки устного счёта: решайте примеры и не давайте ящикам заполнить колонки.">
   <meta name="theme-color" content="#f5f6ff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f0d1c" media="(prefers-color-scheme: dark)">
   <title>Математический тетрис — Терехова Елена Викторовна</title>
@@ -293,7 +293,7 @@
       background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 6px);
     }
 
-    /* Мусор растворяется, когда в колонку попадает правильный ответ */
+    /* Ящики растворяются, когда в колонку попадает правильный ответ */
     .cell.is-clearing {
       z-index: 2;
       background: rgba(16, 185, 129, 0.55);
@@ -896,12 +896,12 @@
         <div class="panel">
           <span class="panel__eyebrow">Разминка для ума</span>
           <h1>Математический тетрис</h1>
-          <p class="panel__lead">Решите пример и направьте блок в колонку с правильным ответом. Ошибка превращается в мусор.</p>
+          <p class="panel__lead">Решите пример и направьте блок в колонку с правильным ответом. Ошибка превращается в ящик.</p>
           <ul class="rules">
             <li><b>← →</b> или свайпы — двигать блок</li>
             <li><b>↓</b> — ускорить · <b>P / Esc</b> — пауза</li>
-            <li><b>Верно</b> — мусор в этой колонке исчезает</li>
-            <li><b>Мусор</b> до верхнего ряда — конец игры</li>
+            <li><b>Верно</b> — ящики в этой колонке исчезают</li>
+            <li><b>Ящики</b> дошли до верхнего ряда — конец игры</li>
           </ul>
           <div class="panel__actions">
             <button class="btn btn--primary" id="startBtn" type="button">Играть</button>
@@ -925,7 +925,7 @@
       <div class="overlay" id="overScreen" hidden>
         <div class="panel">
           <span class="panel__eyebrow">Игра окончена</span>
-          <h2>Мусор добрался до верха</h2>
+          <h2>Ящики добрались до верха</h2>
           <div class="result-stats">
             <div class="result-stat"><span>Счёт</span><strong id="overScore">0</strong></div>
             <div class="result-stat"><span>Рекорд</span><strong id="overBest">0</strong></div>
@@ -1160,7 +1160,7 @@
         return shuffle(values);
       }
 
-      // ---------- Скорость, мусор, коллизии ----------
+      // ---------- Скорость, ящики, коллизии ----------
       function fallSpeed() {
         const base = Math.min(3.4, 1.15 + (state.level - 1) * 0.16);
         return state.fast ? base * 4.2 : base;
@@ -1428,7 +1428,7 @@
       }
 
       // ---------- Правильное и неправильное попадание ----------
-      // Убирает весь мусор в колонке и возвращает количество очищенных клеток.
+      // Убирает все ящики в колонке и возвращает количество очищенных клеток.
       function clearGarbage(col) {
         let cleared = 0;
         const clearedCells = [];
@@ -1454,7 +1454,7 @@
         state.combo = previousCombo + 1;
         state.correct += 1;
 
-        // Бонус за очистку: каждая убранная из колонки мусорная клетка даёт 5 очков.
+        // Бонус за очистку: каждый убранный из колонки ящик даёт 5 очков.
         const cleared = stackHeight(col);
         const clearBonus = cleared * 5;
         const points = 10 + (state.level - 1) * 2 + Math.min(previousCombo, 10) * 5 + clearBonus;
@@ -1476,7 +1476,7 @@
         updateHud();
 
         const messages = [];
-        if (cleared > 0) messages.push("Мусор убран: +" + clearBonus);
+        if (cleared > 0) messages.push("Ящики убраны: +" + clearBonus);
         if (leveledUp) messages.push("Уровень " + state.level);
         if (messages.length > 0) showToast(messages.join(" · "));
 
@@ -1499,7 +1499,7 @@
           return;
         }
 
-        // Ошибка: блок остаётся серым мусором и поднимает стопку вверх.
+        // Ошибка: блок остаётся серым ящиком и поднимает стопку вверх.
         state.combo = 0;
         const row = landingRow(col);
         if (row >= 0) state.garbage[row][col] = true;
@@ -1509,7 +1509,7 @@
         updateHud();
 
         if (row <= 0 || stackHeight(col) >= ROWS) {
-          // Небольшая задержка, чтобы игрок увидел последний мусор.
+          // Небольшая задержка, чтобы игрок увидел последний ящик.
           state.overAt = performance.now() + 320;
         } else {
           state.resolveAt = performance.now() + 460;
@@ -1522,7 +1522,7 @@
         const nextCol = state.block.col + direction;
         if (nextCol < 0 || nextCol >= COLS) return;
 
-        // Не позволяем «заехать» внутрь мусора: блок может встать только
+        // Не позволяем «заехать» внутрь ящиков: блок может встать только
         // на свободную верхушку стопки. Если он чуть ниже неё, аккуратно
         // подтягиваем его вверх — так в высокую колонку всё ещё можно попасть.
         const stopRow = landingRow(nextCol);
