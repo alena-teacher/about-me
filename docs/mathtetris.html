@@ -474,10 +474,29 @@
       text-align: center;
     }
 
+    /* Стартовое меню — на весь экран, чтобы описанию было просторнее */
+    #startScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      border-radius: 0;
+      padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+    }
+
+    #startScreen .panel {
+      max-width: 420px;
+      padding: clamp(18px, 4vw, 26px);
+    }
+
+    #startScreen .btn {
+      min-height: 48px;
+      font-size: 0.9rem;
+    }
+
     .panel__eyebrow {
       display: inline-block;
       color: var(--brand-1);
-      font-size: 0.56rem;
+      font-size: 0.64rem;
       font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -503,38 +522,47 @@
     }
 
     .panel__lead {
-      margin: 0 0 0.85rem;
+      margin: 0 0 1rem;
       color: var(--muted);
-      font-size: 0.75rem;
-      line-height: 1.5;
+      font-size: 1rem;
+      line-height: 1.55;
     }
 
     .rules {
       display: grid;
-      gap: 0.36rem;
-      margin: 0 0 0.95rem;
+      gap: 0.45rem;
+      margin: 0 0 1.1rem;
       padding: 0;
       list-style: none;
       text-align: left;
       color: var(--muted);
-      font-size: 0.68rem;
-      line-height: 1.45;
+      font-size: 0.92rem;
+      line-height: 1.55;
     }
 
     .rules li {
       display: flex;
       align-items: baseline;
-      gap: 0.45rem;
+      gap: 0.5rem;
+    }
+
+    .rules li > span {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .rules .nowrap {
+      white-space: nowrap;
     }
 
     .rules b {
       flex: 0 0 auto;
-      padding: 1px 5px;
+      padding: 2px 6px;
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: 7px;
       background: var(--panel-2);
       color: var(--ink);
-      font-size: 0.61rem;
+      font-size: 0.8rem;
       white-space: nowrap;
     }
 
@@ -821,6 +849,31 @@
       }
     }
 
+    /* Компактные отступы на низких экранах, чтобы меню влезало целиком */
+    @media screen and (max-height: 640px) {
+      #startScreen {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      #startScreen .panel {
+        padding: 14px 16px;
+      }
+
+      #startScreen .btn {
+        min-height: 44px;
+      }
+
+      .panel__lead {
+        margin-bottom: 0.8rem;
+      }
+
+      .rules {
+        gap: 0.35rem;
+        margin-bottom: 0.9rem;
+      }
+    }
+
     @media screen and (max-width: 360px) {
       .back span {
         display: none;
@@ -831,11 +884,11 @@
       }
 
       .panel {
-        padding: 14px;
+        padding: 16px;
       }
 
       .rules {
-        font-size: 0.64rem;
+        font-size: 0.88rem;
       }
     }
 
@@ -898,10 +951,10 @@
           <h1>Математический тетрис</h1>
           <p class="panel__lead">Решите пример и направьте блок в колонку с правильным ответом. Ошибка превращается в ящик.</p>
           <ul class="rules">
-            <li><b>← →</b> или свайпы — двигать блок</li>
-            <li><b>↓</b> — ускорить · <b>P / Esc</b> — пауза</li>
-            <li><b>Верно</b> — ящики в этой колонке исчезают</li>
-            <li><b>Ящики</b> дошли до верхнего ряда — конец игры</li>
+            <li><b>← →</b><span>или свайпы — <span class="nowrap">двигать блок</span></span></li>
+            <li><b>↓</b><span>— ускорить, <span class="nowrap"><b>P / Esc</b> — пауза</span></span></li>
+            <li><b>Верно</b><span>— ящики в этой колонке исчезают</span></li>
+            <li><b>Ящики</b><span>дошли до верхнего ряда — конец игры</span></li>
           </ul>
           <div class="panel__actions">
             <button class="btn btn--primary" id="startBtn" type="button">Играть</button>
